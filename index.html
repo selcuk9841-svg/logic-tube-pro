@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Logic Tube: Color Puzzle Pro</title>
+    <meta name="theme-color" content="#1a1c29">
+    <meta name="description" content="Next-Gen Color Sorting & Puzzle Experience for Mobile">
+    <link rel="manifest" href="data:application/manifest+json;base64,ewog "name": "Logic Tube Pro", "short_name": "LogicTube", "start_url": "/", "display": "standalone", "background_color": "#1a1c29", "theme_color": "#1a1c29", "icons": [{"src": "https://img.icons8.com/fluency/96/test-tube.png", "sizes": "96x96", "type": "image/png"}]}">
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-2670525330586593" crossorigin="anonymous"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body {
+            background: radial-gradient(circle at center, #1a1c29 0%, #0c0d14 100%);
+            font-family: 'Outfit', sans-serif;
+            color: #ffffff; min-height: 100vh; display: flex;
+            flex-direction: column; align-items: center; justify-content: space-between;
+            padding: 12px 10px 62px 10px; overflow-y: auto; position: relative;
+        }
+
+        .intro-overlay, .modal, .ad-interstitial-overlay {
+            position: fixed; inset: 0; background: rgba(8, 9, 15, 0.88);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 1000; padding: 20px; transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .intro-overlay.hidden, .modal.hidden, .ad-interstitial-overlay.hidden {
+            opacity: 0; pointer-events: none;
+        }
+
+        .logo-box {
+            width: 95px; height: 95px; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            border-radius: 26px; display: flex; justify-content: center; align-items: center;
+            font-size: 44px; box-shadow: 0 15px 35px rgba(0, 242, 254, 0.4);
+            margin-bottom: 16px; animation: floatLogo 3s ease-in-out infinite; border: 2px solid rgba(255,255,255,0.3);
+        }
+        @keyframes floatLogo {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+
+        .intro-title { font-size: 26px; font-weight: 900; background: linear-gradient(135deg, #00f2fe, #4facfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; text-align: center; }
+        .intro-subtitle { font-size: 12px; color: #94a3b8; margin-bottom: 20px; text-align: center; font-weight: 600; }
+        
+        .intro-card, .modal-card, .lb-card, .ad-banner-box {
+            background: linear-gradient(145deg, rgba(30, 32, 48, 0.9), rgba(18, 20, 31, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.12); padding: 22px; border-radius: 24px; width: 100%; max-width: 360px;
+            display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            position: relative; z-index: 10;
+        }
+        .intro-label { font-size: 11px; font-weight: 700; color: #cbd5e1; text-align: left; text-transform: uppercase; letter-spacing: 0.8px; }
+
+        .gold-rain-container {
+            position: fixed; inset: 0; pointer-events: none; z-index: 999; overflow: hidden; display: none;
+        }
+        .gold-rain-container.active { display: block; }
+        .falling-coin {
+            position: absolute; top: -30px; font-size: 22px; animation: fallCoin linear infinite;
+            filter: drop-shadow(0 0 6px #fbbf24);
+        }
+        @keyframes fallCoin {
+            0% { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(105vh) rotate(360deg); opacity: 0.2; }
+        }
+
+        .header {
+            width: 100%; max-width: 440px; display: flex; justify-content: space-between;
+            align-items: center; padding: 12px 16px; background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08); flex-shrink: 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .title-group { display: flex; align-items: center; gap: 10px; }
+        .title { font-size: 15px; font-weight: 900; background: linear-gradient(135deg, #00f2fe, #4facfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .level-badge { font-size: 12px; font-weight: 800; color: #fbbf24; background: rgba(251, 191, 36, 0.12); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.3); }
+        
+        .profile-container {
+            display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); padding: 5px 12px;
+            border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); font-size: 12px; font-weight: 700; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .profile-container:hover { background: rgba(255,255,255,0.1); }
+
+        .hud-stats { display: flex; gap: 8px; font-size: 13px; font-weight: 800; }
+        .stat-box { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); }
+
+        .controls { display: flex; gap: 6px; margin: 10px 0; flex-shrink: 0; flex-wrap: wrap; justify-content: center; }
+        .btn {
+            background: rgba(255, 255, 255, 0.06); color: #fff; border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 8px 11px; border-radius: 14px; font-weight: 700; cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+            font-size: 11px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .btn:hover { background: rgba(255, 255, 255, 0.12); transform: translateY(-1px); }
+        .btn:active { transform: translateY(1px); }
+        .btn-lb { background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: none; }
+        .btn-undo { background: linear-gradient(135deg, #8b5cf6, #6d28d9); border: none; color: #fff; }
+        .btn-pause { background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #fff; }
+        .btn-stuck { background: linear-gradient(135deg, #ef4444, #991b1b); border: none; color: #fff; }
+        .btn-meta { background: linear-gradient(135deg, #10b981, #059669); border: none; color: #fff; }
+        .btn-pvp { background: linear-gradient(135deg, #ec4899, #be185d); border: none; color: #fff; }
+
+        .game-board { 
+            display: flex; justify-content: center; align-items: center; 
+            gap: 12px; width: 100%; max-width: 480px; margin: 10px auto; 
+            position: relative; flex-wrap: wrap; height: auto; 
+        }
+        .tube {
+            width: 46px; height: 195px; border: 4px solid rgba(255, 255, 255, 0.85); border-top: none;
+            border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; 
+            background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.08) 100%);
+            backdrop-filter: blur(4px);
+            display: flex; flex-direction: column-reverse; align-items: center; padding: 6px 3px;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        .tube.selected { transform: translateY(-14px) scale(1.03); border-color: #00f2fe; box-shadow: 0 15px 35px rgba(0, 242, 254, 0.5); }
+        .liquid { 
+            width: 100%; height: 40px; border-radius: 8px; margin-top: 3px; 
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.3);
+            transition: height 0.2s ease;
+        }
+        .liquid:first-child { border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
+        
+        .red { background: linear-gradient(90deg, #ff416c, #ff4b2b); }
+        .blue { background: linear-gradient(90deg, #2193b0, #6dd5ed); }
+        .green { background: linear-gradient(90deg, #11998e, #38ef7d); }
+        .yellow { background: linear-gradient(90deg, #f7971e, #ffd200); }
+        .purple { background: linear-gradient(90deg, #8e2de2, #4a00e0); }
+        .orange { background: linear-gradient(90deg, #f857a6, #ff5858); }
+
+        .timer-container {
+            width: 100%; max-width: 440px; margin: 10px auto 16px auto;
+            background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border-radius: 20px; padding: 10px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .timer-track {
+            width: 100%; height: 12px; background: rgba(0,0,0,0.4); border-radius: 10px;
+            position: relative; overflow: visible; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .timer-fill {
+            height: 100%; background: linear-gradient(90deg, #10b981, #fbbf24, #ef4444);
+            border-radius: 10px; width: 0%; transition: width 0.2s linear;
+        }
+        .cheetah { position: absolute; top: -16px; font-size: 22px; transform: translateX(-50%); transition: left 0.2s linear; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
+        .carrot { position: absolute; top: -11px; right: -6px; font-size: 18px; pointer-events: none; }
+        .timer-info { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; font-weight: 700; }
+
+        .banner-ad-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 52px;
+            background: rgba(14, 16, 26, 0.98); backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; z-index: 900; box-shadow: 0 -10px 30px rgba(0,0,0,0.7);
+        }
+        .banner-ad-footer.hidden { display: none; }
+        body.ad-free { padding-bottom: 12px; }
+
+        .banner-ad-left { display: flex; align-items: center; gap: 10px; }
+        .banner-ad-tag { font-size: 9px; font-weight: 800; background: #fbbf24; color: #0c0d14; padding: 2px 6px; border-radius: 6px; text-transform: uppercase; }
+        .banner-ad-text { font-size: 11px; font-weight: 700; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 230px; }
+        .banner-ad-btn { background: linear-gradient(135deg, #00f2fe, #4facfe); color: #0c0d14; border: none; font-size: 10px; font-weight: 900; padding: 6px 12px; border-radius: 10px; cursor: pointer; }
+
+        .modal-card h2 { font-size: 18px; font-weight: 900; }
+        .modal-card p { font-size: 11px; color: #94a3b8; margin-bottom: 2px; font-weight: 600; }
+
+        .option-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+        .option-btn {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); padding: 10px 12px;
+            border-radius: 12px; color: #fff; font-size: 11px; font-weight: 700; cursor: pointer;
+            text-align: left; display: flex; align-items: center; justify-content: space-between;
+        }
+        .option-btn.gold { border-color: rgba(251, 191, 36, 0.4); }
+        .option-btn.ad { border-color: rgba(236, 72, 153, 0.4); }
+        .option-btn.wa { border-color: rgba(34, 197, 94, 0.4); }
+
+        .input-field {
+            width: 100%; padding: 11px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(0,0,0,0.3); color: white; font-size: 12px; text-align: center; outline: none; font-weight: 700;
+        }
+        .input-field:focus { border-color: #00f2fe; }
+
+        .lb-card { background: linear-gradient(145deg, rgba(30, 32, 48, 0.95), rgba(18, 20, 31, 0.98)); width: 100%; max-width: 350px; border-radius: 24px; padding: 22px; border: 1px solid rgba(255,255,255,0.12); }
+        .lb-title { font-size: 16px; font-weight: 900; color: #fbbf24; margin-bottom: 10px; text-align: center; }
+        .lb-list { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; margin-bottom: 10px; }
+        .lb-item { display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.04); border-radius: 10px; font-size: 11px; font-weight: 700; }
+        .lb-item.user-row { background: linear-gradient(135deg, #059669, #10b981); color: white; font-weight: 900; }
+
+        .ad-banner-box { text-align: center; }
+        .ad-tag { position: absolute; top: 12px; left: 14px; font-size: 9px; font-weight: 800; background: #fbbf24; color: #0c0d14; padding: 2px 8px; border-radius: 6px; text-transform: uppercase; }
+        .ad-content-area { margin-top: 15px; padding: 22px 12px; background: rgba(0,0,0,0.3); border-radius: 14px; border: 1px dashed rgba(255,255,255,0.15); }
+        .ad-content-title { font-size: 16px; font-weight: 900; color: #00f2fe; margin-bottom: 6px; }
+        .ad-content-sub { font-size: 11px; color: #94a3b8; }
+        .ad-close-btn {
+            background: rgba(255,255,255,0.1); color: #fff; border: none; padding: 11px; border-radius: 12px;
+            font-size: 11px; font-weight: 800; cursor: pointer; opacity: 0.5; pointer-events: none;
+        }
+        .ad-close-btn.ready { background: linear-gradient(135deg, #10b981, #059669); opacity: 1; pointer-events: auto; }
+
+        .ad-free-badge {
+            background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 3px 8px;
+            border-radius: 10px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; gap: 3px;
+            margin-left: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="gold-rain-container" id="goldRainContainer"></div>
+
+    <div class="intro-overlay" id="introOverlay">
+        <div class="logo-box">🧪</div>
+        <div class="intro-title">Logic Tube Pro v7.2</div>
+        <div class="intro-subtitle">AdMob Production Ready</div>
+        <div class="intro-card">
+            <div class="intro-label" id="introNameLbl">Enter Your Nickname</div>
+            <input type="text" id="introNameInput" class="input-field" placeholder="Player Name" maxlength="14" value="Player">
+            
+            <div class="intro-label" id="introLangLbl">Select Language</div>
+            <select id="introLangSelect" class="input-field" onchange="onIntroLangChange(this.value)">
+                <option value="tr">🇹🇷 Türkçe</option>
+                <option value="en" selected>🇺🇸 English</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="ar">🇸🇦 العربية (Arabic)</option>
+                <option value="zh">🇨🇳 中文 (Chinese)</option>
+                <option value="ja">🇯🇵 日本語 (Japanese)</option>
+                <option value="ko">🇰🇷 한국어 (Korean)</option>
+                <option value="id">🇮🇩 Bahasa Indonesia</option>
+                <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
+                <option value="vi">🇻🇳 Tiếng Việt (Vietnamese)</option>
+                <option value="th">🇹🇭 ไทย (Thai)</option>
+                <option value="az">🇦🇿 Azərbaycanca</option>
+            </select>
+
+            <button class="btn" style="background:linear-gradient(135deg, #00f2fe, #4facfe); color:#0c0d14; border:none; font-weight:900; padding:13px; margin-top:2px; font-size:12px; box-shadow:0 8px 25px rgba(0,242,254,0.4);" onclick="submitProfileAndProceed()" id="introNextBtn">Continue 🚀</button>
+            <button class="btn" style="background:rgba(245, 158, 11, 0.2); border:1px solid #f59e0b; color:#fbbf24; font-weight:800; padding:10px; font-size:11px;" onclick="buyAdFreeVersion()" id="introAdFreeBtn">⭐ Remove Ads ($4.99)</button>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="metaModal">
+        <div class="modal-card">
+            <h2 style="color:#10b981;" id="metaTitleText">🏝️ Sanal Laboratuvar & Ada</h2>
+            <p id="metaDescText">Kazandığın altınlarla adanı dekore et ve pasif gelirini artır!</p>
+            <div style="background:rgba(0,0,0,0.4); padding:15px; border-radius:14px; text-align:center; font-size:13px; font-weight:800;" id="metaStatusDisplay">
+                🧪 Lab Seviyesi: 1 (Temel Kimya Ünitesi)
+            </div>
+            <button class="btn btn-meta" onclick="upgradeLab()" id="metaUpgradeBtn">⚡ Laboratuvarı Geliştir (100 Altın)</button>
+            <button class="btn" style="background:rgba(255,255,255,0.08); margin-top:4px;" onclick="closeMetaModal()" id="metaCloseBtn">Kapat</button>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="pvpModal">
+        <div class="modal-card">
+            <h2 style="color:#ec4899;" id="pvpTitleText">⚔️ 1v1 Hız Yarışı (PvP)</h2>
+            <p id="pvpDescText">Dünyadan rastgele bir rakiple eşleş ve bulmacayı ilk çözen sen ol!</p>
+            <div style="background:rgba(0,0,0,0.4); padding:15px; border-radius:14px; text-align:center; font-size:13px; font-weight:800;" id="pvpStatusDisplay">
+                🔍 Rakip aranıyor...
+            </div>
+            <button class="btn btn-pvp" onclick="startPvPMatch()" id="pvpStartBtn">🚀 Maçı Başlat</button>
+            <button class="btn" style="background:rgba(255,255,255,0.08); margin-top:4px;" onclick="closePvpModal()" id="pvpCloseBtn">Geri Dön</button>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="saveChoiceModal">
+        <div class="modal-card">
+            <h2 style="color:#00f2fe;" id="choiceTitleText">🎮 Saved Game Found!</h2>
+            <p id="choiceDescText">Would you like to continue from where you left off or start a new game?</p>
+            <button class="btn" style="background:linear-gradient(135deg, #10b981, #059669); border:none; padding:12px; font-size:12px; margin-top:6px; font-weight:900;" onclick="chooseContinueGame()" id="choiceContinueBtn">Continue Level ▶️</button>
+            <button class="btn" style="background:rgba(239, 68, 68, 0.2); border:1px solid #ef4444; color:#f87171; padding:11px; font-weight:800;" onclick="chooseRestartGame()" id="choiceRestartBtn">🔄 Start from Level 1</button>
+        </div>
+    </div>
+
+    <div class="ad-interstitial-overlay hidden" id="adInterstitialOverlay">
+        <div class="ad-banner-box">
+            <span class="ad-tag">AdMob Interstitial</span>
+            <div class="ad-content-area">
+                <div class="ad-content-title" id="adTitleText">Super Puzzle World Pro</div>
+                <div class="ad-content-sub" id="adDescText">Discover elite adventures and brain teasers today!</div>
+            </div>
+            <button class="ad-close-btn" id="adCloseBtn" onclick="closeInterstitialAd()">✕ Close Ad (3s)</button>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="title-group">
+            <span class="title" id="uiAppName">Logic Tube Pro</span>
+            <span class="level-badge" id="levelText">Level 1</span>
+        </div>
+        <div class="profile-container" onclick="openProfileModal()">
+            <span id="userFlag">🌐</span>
+            <span id="userNameDisplay">Player</span>
+            <span id="adFreeBadgeContainer"></span>
+        </div>
+        <div class="hud-stats">
+            <div class="stat-box">⭐ <span id="scoreText">0</span></div>
+            <div class="stat-box">🪙 <span id="coinText">100</span></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-pause" id="btnPause" onclick="togglePause()">⏸️ Pause</button>
+        <button class="btn btn-stuck" id="btnStuck" onclick="triggerDeadlock('No Moves Left!')">🔒 Stuck</button>
+        <button class="btn btn-undo" id="btnUndo" onclick="undoMove()">↩️ Undo</button>
+        <button class="btn btn-meta" id="btnMeta" onclick="openMetaModal()">🏝️ Lab</button>
+        <button class="btn btn-pvp" id="btnPvp" onclick="openPvpModal()">⚔️ PvP</button>
+        <button class="btn btn-lb" id="btnLb" onclick="openLeaderboard()">🏆 Ranking</button>
+    </div>
+    
+    <div class="game-board" id="board"></div>
+
+    <div class="timer-container">
+        <div class="timer-info">
+            <span id="timerTitle">⏱️ Cheetah Sprint!</span>
+            <span id="timeText">40s</span>
+        </div>
+        <div class="timer-track">
+            <div class="timer-fill" id="timerFill"></div>
+            <div class="cheetah" id="cheetah">🐆</div>
+            <div class="carrot">🥕</div>
+        </div>
+    </div>
+
+    <div class="banner-ad-footer" id="bannerAdFooter">
+        <div class="banner-ad-left">
+            <span class="banner-ad-tag">Ad</span>
+            <span class="banner-ad-text" id="bannerAdText">Super Puzzle Game - Play Now!</span>
+        </div>
+        <button class="banner-ad-btn" onclick="alert(currentLang === 'tr' ? 'Sponsorlu bağlantı açılıyor...' : 'Opening sponsor link...')">Install</button>
+    </div>
+
+    <div class="modal hidden" id="pauseModal">
+        <div class="modal-card">
+            <h2 style="color:#fbbf24;" id="pauseTitleText">⏸️ GAME PAUSED</h2>
+            <p id="pauseDescText">Take your time, the game is waiting for you!</p>
+            <button class="btn" style="background:linear-gradient(135deg, #10b981, #059669); border:none; padding:12px; font-size:13px; margin-top:8px; font-weight:900;" onclick="togglePause()" id="resumeBtn">Resume ▶️</button>
+            <button class="btn" style="background:rgba(255,255,255,0.08);" onclick="resetLevel(); togglePause();" id="restartFromPauseBtn">🔄 Restart Level</button>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="profileModal">
+        <div class="modal-card">
+            <h2 style="color:#00f2fe;" id="profileTitleText">👤 User Profile</h2>
+            <p id="profileDescText">Update your Nickname and Language</p>
+            <input type="text" id="nicknameInput" class="input-field" placeholder="Nickname" maxlength="14" value="Player">
+            <select id="countrySelect" class="input-field">
+                <option value="tr">🇹🇷 Türkçe</option>
+                <option value="en">🇺🇸 English</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="ar">🇸🇦 العربية</option>
+                <option value="zh">🇨🇳 中文</option>
+                <option value="ja">🇯🇵 日本語</option>
+                <option value="ko">🇰🇷 한국어</option>
+                <option value="id">🇮🇩 Bahasa Indonesia</option>
+                <option value="hi">🇮🇳 हिन्दी</option>
+                <option value="vi">🇻🇳 Tiếng Việt</option>
+                <option value="th">🇹🇭 ไทย</option>
+                <option value="az">🇦🇿 Azərbaycanca</option>
+            </select>
+            <button class="btn" style="background:linear-gradient(135deg, #00f2fe, #4facfe); color:#0c0d14; border:none; font-weight:900; padding:11px; margin-top:6px;" onclick="saveProfile()" id="profileSaveBtn">Save</button>
+            <button class="btn" style="background:rgba(245, 158, 11, 0.2); border:1px solid #f59e0b; color:#fbbf24; font-weight:800; padding:9px; font-size:11px;" onclick="buyAdFreeVersion()" id="profileAdFreeBtn">⭐ Remove Ads ($4.99)</button>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="victoryModal">
+        <div class="modal-card">
+            <h2 style="color:#00f2fe;" id="victoryTitleText">🎉 CONGRATULATIONS!</h2>
+            <p id="victorySubText">You successfully completed the level!</p>
+            <p id="rewardText" style="color:#fbbf24; font-size:12px; font-weight:900;">+15 Score | +10 Coins Won!</p>
+            <button class="btn" style="background:linear-gradient(135deg, #10b981, #059669); border:none; padding:12px; font-size:13px; margin-top:8px; font-weight:900;" onclick="nextLevel()" id="nextLevelBtn">Next Level 🚀</button>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="deadlockModal">
+        <div class="modal-card">
+            <h2 id="deadlockTitle" style="color:#f97316;">🔒 TIME UP / NO MOVES!</h2>
+            <p id="deadlockDesc">Choose an option below to continue:</p>
+            <div class="option-list">
+                <button class="option-btn gold" onclick="reviveByGold()">
+                    <span id="reviveGoldText">🪙 Pay 40 Coins for +40s Extra Time</span>
+                    <span>✨</span>
+                </button>
+                <button class="option-btn ad" onclick="reviveByAd()">
+                    <span id="reviveAdText">📺 Watch Ad (Unlock Extra Tube)</span>
+                    <span>🎁</span>
+                </button>
+                <button class="option-btn wa" onclick="reviveByWhatsApp()">
+                    <span id="reviveWaText">💬 Invite Friend via WhatsApp (Skip Level)</span>
+                    <span>🚀</span>
+                </button>
+            </div>
+            <button class="btn" style="background:rgba(255,255,255,0.08); margin-top: 8px;" onclick="resetLevel()" id="restartFromDeadlockBtn">🔄 Restart from Beginning</button>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="lbModal">
+        <div class="lb-card">
+            <div class="lb-title" id="lbTitleText">🏆 Top 10 Leaderboard</div>
+            <div class="lb-list">
+                <div class="lb-item"><span>1. Mehmet_Pro</span><span>1,450 p</span></div>
+                <div class="lb-item"><span>2. Alex_Puzzle</span><span>1,200 p</span></div>
+                <div class="lb-item"><span>3. Canan_K</span><span>980 p</span></div>
+                <div class="lb-item"><span>4. GamerX</span><span>850 p</span></div>
+                <div class="lb-item"><span>5. Elif_T</span><span>720 p</span></div>
+            </div>
+            <div class="lb-item user-row">
+                <span id="lbUserRank">#1,420 <span id="lbUserTag">Player</span></span>
+                <span id="lbUserScore">0 p</span>
+            </div>
+            <button class="btn" style="margin-top: 10px; background:rgba(255,255,255,0.08);" onclick="closeLeaderboard()" id="lbCloseBtn">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                levelText: "Level", pauseBtn: "⏸️ Pause", stuckBtn: "🔒 Stuck",
+                undoBtn: "↩️ Undo", lbBtn: "🏆 Ranking", timerTitle: "⏱️ Cheetah Sprint!",
+                pauseTitle: "⏸️ GAME PAUSED", pauseDesc: "Take your time, the game is waiting for you!",
+                resumeBtn: "Resume ▶️", restartPauseBtn: "🔄 Restart Level",
+                profileTitle: "👤 User Profile", profileDesc: "Update your Nickname and Language", saveBtn: "Save",
+                victoryTitle: "🎉 CONGRATULATIONS!", victorySub: "You successfully completed the level!",
+                rewardTxt: "+15 Score | +10 Coins Won!", nextBtn: "Next Level 🚀",
+                deadlockTitle: "🔒 TIME UP / NO MOVES!", deadlockDesc: "Choose an option below to continue:",
+                revGold: "🪙 Pay 40 Coins for +40s Extra Time", revAd: "📺 Watch Ad (Unlock Extra Tube)",
+                revWa: "💬 Invite Friend via WhatsApp (Skip Level)", restartDeadlockBtn: "🔄 Restart from Beginning",
+                lbTitle: "🏆 Top 10 Leaderboard", introNextBtn: "Continue 🚀", introAdFreeBtn: "⭐ Remove Ads ($4.99)",
+                profileAdFreeBtn: "⭐ Remove Ads ($4.99)",
+                introNameLbl: "Enter Your Nickname", introLangLbl: "Select Language", closeBtn: "Close",
+                adTitle: "Sponsored Content Pro", adDesc: "Discover new amazing features and professional applications!", adCloseReady: "✕ Close Ad",
+                bannerText: "Super Puzzle Pro - Play Now!",
+                choiceTitle: "🎮 Saved Game Found!", choiceDesc: "Would you like to continue from where you left off or start a new game?",
+                choiceContinue: "Continue Level ▶️", choiceRestart: "🔄 Start from Level 1", adFreeBadge: "⭐ Ad-Free"
+            },
+            tr: {
+                levelText: "Bölüm", pauseBtn: "⏸️ Durdur", stuckBtn: "🔒 Tıkandım",
+                undoBtn: "↩️ Geri Al", lbBtn: "🏆 Sıralama", timerTitle: "⏱️ Çita Koşusu!",
+                pauseTitle: "⏸️ OYUN DURAKLATILDI", pauseDesc: "İşini hallet, oyun seni bekliyor!",
+                resumeBtn: "Devam Et ▶️", restartPauseBtn: "🔄 Bölümü Yeniden Başlat",
+                profileTitle: "👤 Profil Bilgileri", profileDesc: "Adını ve Dilini Güncelle", saveBtn: "Kaydet",
+                victoryTitle: "🎉 TEBRİKLER!", victorySub: "Bölümü Başarıyla Tamamladın!",
+                rewardTxt: "+15 Puan | +10 Altın Kazandın!", nextBtn: "Sonraki Bölüme Geç 🚀",
+                deadlockTitle: "🔒 SÜRE BİTTİ / HAMLE YOK!", deadlockDesc: "Devam etmek için aşağıdaki seçeneklerden birini seç:",
+                revGold: "🪙 40 Altın Öde +40 Saniye Ek Süre Al", revAd: "📺 Reklam İzle (Yeni Boş Tüp Aç)",
+                revWa: "💬 WhatsApp ile Arkadaşını Davet Et (Bölüm Atla)", restartDeadlockBtn: "🔄 Baştan Başla",
+                lbTitle: "🏆 Top 10 Liderlik Tablosu", introNextBtn: "Devam Et 🚀", introAdFreeBtn: "⭐ Reklamları Kaldır ($4.99)",
+                profileAdFreeBtn: "⭐ Reklamları Kaldır ($4.99)",
+                introNameLbl: "Kullanıcı Adınızı Girin", introLangLbl: "Dil Seçin", closeBtn: "Kapat",
+                adTitle: "Sponsorlu Pro Reklam", adDesc: "Harika içerikleri ve yeni profesyonel uygulamaları keşfet!", adCloseReady: "✕ Reklamı Kapat",
+                bannerText: "Süper Bulmaca Pro - Hemen Oyna!",
+                choiceTitle: "🎮 Kayıtlı Oyun Bulundu!", choiceDesc: "Kaldığın yerden devam etmek ister misin yoksa baştan mı başlamak istersin?",
+                choiceContinue: "Kaldığın Yerden Devam Et ▶️", choiceRestart: "🔄 1. Bölümden Baştan Başla", adFreeBadge: "⭐ Reklamsız"
+            },
+            es: {
+                levelText: "Nivel", pauseBtn: "⏸️ Pausa", stuckBtn: "🔒 Atascado",
+                undoBtn: "↩️ Deshacer", lbBtn: "🏆 Ranking", timerTitle: "⏱️ ¡Carrera de Guepardo!",
+                pauseTitle: "⏸️ JUEGO PAUSADO", pauseDesc: "¡Tómate tu tiempo!",
+                resumeBtn: "Continuar ▶️", restartPauseBtn: "🔄 Reiniciar Nivel",
+                profileTitle: "👤 Perfil de Usuario", profileDesc: "Actualiza tu apodo e idioma", saveBtn: "Guardar",
+                victoryTitle: "🎉 ¡FELICIDADES!", victorySub: "¡Completaste el nivel con éxito!",
+                rewardTxt: "+15 Puntos | +10 Monedas ganadas!", nextBtn: "Siguiente Nivel 🚀",
+                deadlockTitle: "🔒 ¡TIEMPO AGOTADO / SIN MOVIMIENTOS!", deadlockDesc: "Elige una opción:",
+                revGold: "🪙 Pagar 40 monedas por +40s extra", revAd: "📺 Ver anuncio (Desbloquear tubo)",
+                revWa: "💬 Invitar amigo por WhatsApp", restartDeadlockBtn: "🔄 Reiniciar desde el inicio",
+                lbTitle: "🏆 Top 10 Ranking", introNextBtn: "Continuar 🚀", introAdFreeBtn: "⭐ Quitar anuncios ($4.99)",
+                profileAdFreeBtn: "⭐ Quitar anuncios ($4.99)",
+                introNameLbl: "Ingresa tu apodo", introLangLbl: "Selecciona Idioma", closeBtn: "Cerrar",
+                adTitle: "Anuncio Patrocinado", adDesc: "¡Descubre nuevas funciones increíbles!", adCloseReady: "✕ Cerrar anuncio",
+                bannerText: "Super Puzzle Pro - ¡Juega ahora!",
+                choiceTitle: "🎮 ¡Partida guardada!", choiceDesc: "¿Quieres continuar o empezar de nuevo?",
+                choiceContinue: "Continuar ▶️", choiceRestart: "🔄 Empezar de nuevo", adFreeBadge: "⭐ Sin Anuncios"
+            },
+            fr: {
+                levelText: "Niveau", pauseBtn: "⏸️ Pause", stuckBtn: "🔒 Bloqué",
+                undoBtn: "↩️ Annuler", lbBtn: "🏆 Classement", timerTitle: "⏱️ Sprint Guépard !",
+                pauseTitle: "⏸️ JEU EN PAUSE", pauseDesc: "Prenez votre temps !",
+                resumeBtn: "Reprendre ▶️", restartPauseBtn: "🔄 Recommencer le niveau",
+                profileTitle: "👤 Profil utilisateur", profileDesc: "Mettez à jour vos infos", saveBtn: "Enregistrer",
+                victoryTitle: "🎉 FÉLICITATIONS !", victorySub: "Niveau réussi avec succès !",
+                rewardTxt: "+15 Score | +10 Pièces gagnées !", nextBtn: "Niveau suivant 🚀",
+                deadlockTitle: "🔒 HÊT TEMPS / PLUS DE MOUVEMENTS !", deadlockDesc: "Choisissez une option :",
+                revGold: "🪙 Payer 40 pièces pour +40s", revAd: "📺 Regarder une pub (Débloquer un tube)",
+                revWa: "💬 Inviter un ami (Passer le niveau)", restartDeadlockBtn: "🔄 Recommencer",
+                lbTitle: "🏆 Top 10 Classement", introNextBtn: "Continuer 🚀", introAdFreeBtn: "⭐ Supprimer les pubs ($4.99)",
+                profileAdFreeBtn: "⭐ Supprimer les pubs ($4.99)",
+                introNameLbl: "Entrez votre pseudo", introLangLbl: "Sélectionnez la langue", closeBtn: "Fermer",
+                adTitle: "Annonce Sponsorisée", adDesc: "Découvrez de nouvelles applications incroyables !", adCloseReady: "✕ Fermer l'annonce",
+                bannerText: "Jeu de Puzzle Pro - Jouez maintenant !",
+                choiceTitle: "🎮 Partie sauvegardée !", choiceDesc: "Voulez-vous continuer ou recommencer ?",
+                choiceContinue: "Continuer ▶️", choiceRestart: "🔄 Recommencer", adFreeBadge: "⭐ Sans Pub"
+            },
+            de: {
+                levelText: "Level", pauseBtn: "⏸️ Pause", stuckBtn: "🔒 Fest",
+                undoBtn: "↩️ Zurück", lbBtn: "🏆 Rangliste", timerTitle: "⏱️ Geparden-Sprint!",
+                pauseTitle: "⏸️ SPIEL PAUSIERT", pauseDesc: "Nimm dir Zeit, das Spiel wartet!",
+                resumeBtn: "Weiter ▶️", restartPauseBtn: "🔄 Level neu starten",
+                profileTitle: "👤 Benutzerprofil", profileDesc: "Aktualisiere Name und Sprache", saveBtn: "Speichern",
+                victoryTitle: "🎉 GLÜCKWUNSCH!", victorySub: "Level erfolgreich abgeschlossen!",
+                rewardTxt: "+15 Punkte | +10 Münzen!", nextBtn: "Nächstes Level 🚀",
+                deadlockTitle: "🔒 ZEIT ABGELAUFEN / KEINE ZÜGE!", deadlockDesc: "Wähle eine Option:",
+                revGold: "🪙 40 Münzen für +40s Extra-Zeit", revAd: "📺 Werbung ansehen (Röhrchen freischalten)",
+                revWa: "💬 Freund einladen (Level überspringen)", restartDeadlockBtn: "🔄 Neu starten",
+                lbTitle: "🏆 Top 10 Rangliste", introNextBtn: "Weiter 🚀", introAdFreeBtn: "⭐ Werbung entfernen ($4.99)",
+                profileAdFreeBtn: "⭐ Werbung entfernen ($4.99)",
+                introNameLbl: "Gib deinen Namen ein", introLangLbl: "Sprache auswählen", closeBtn: "Schließen",
+                adTitle: "Gesponserte Anzeige", adDesc: "Entdecke neue tolle Funktionen und Apps!", adCloseReady: "✕ Werbung schließen",
+                bannerText: "Super Puzzle Pro - Jetzt spielen!",
+                choiceTitle: "🎮 Gespeichertes Spiel gefunden!", choiceDesc: "Möchtest du fortfahren oder neu beginnen?",
+                choiceContinue: "Fortsetzen ▶️", choiceRestart: "🔄 Neu starten", adFreeBadge: "⭐ Werbefrei"
+            },
+            ar: {
+                levelText: "المستوى", pauseBtn: "⏸️ إيقاف مؤقت", stuckBtn: "🔒 مسدود",
+                undoBtn: "↩️ تراجع", lbBtn: "🏆 لوحة الصدارة", timerTitle: "⏱️ سباق الفهد!",
+                pauseTitle: "⏸️ اللعبة متوقفة مؤقتاً", pauseDesc: "خذ وقتك، اللعبة في انتظارك!",
+                resumeBtn: "استئناف ▶️", restartPauseBtn: "🔄 إعادة تشغيل المستوى",
+                profileTitle: "👤 الملف الشخصي", profileDesc: "قم بتحديث اسمك ولغتك", saveBtn: "حفظ",
+                victoryTitle: "🎉 مبروك!", victorySub: "لقد أكملت المستوى بنجاح!",
+                rewardTxt: "+15 نقطة | +10 عملات ذهبية!", nextBtn: "المستوى التالي 🚀",
+                deadlockTitle: "🔒 انتهى الوقت / لا توجد حركات!", deadlockDesc: "اختر خياراً للمتابعة:",
+                revGold: "🪙 ادفع 40 عملة مقابل +40 ثانية إضافية", revAd: "📺 مشاهدة إعلان (فتح أنبوب إضافي)",
+                revWa: "💬 دعوة صديق عبر واتساب (تخطي المستوى)", restartDeadlockBtn: "🔄 البدء من جديد",
+                lbTitle: "🏆 أفضل 10 لاعبين", introNextBtn: "متابعة 🚀", introAdFreeBtn: "⭐ إزالة الإعلانات ($4.99)",
+                profileAdFreeBtn: "⭐ إزالة الإعلانات ($4.99)",
+                introNameLbl: "أدخل اسم المستخدم", introLangLbl: "اختر اللغة", closeBtn: "إغلاق",
+                adTitle: "إعلان ممول", adDesc: "اكتشف ميزات جديدة مذهلة وتطبيقات احترافية!", adCloseReady: "✕ إغلاق الإعلان",
+                bannerText: "لعبة الألغاز الخارقة - العب الآن!",
+                choiceTitle: "🎮 تم العثور على لعبة محفوظة!", choiceDesc: "هل تريد المتابعة من حيث توقفت أم بدء لعبة جديدة؟",
+                choiceContinue: "متابعة المستوى ▶️", choiceRestart: "🔄 البدء من المستوى 1", adFreeBadge: "⭐ بدون إعلانات"
+            },
+            zh: {
+                levelText: "关卡", pauseBtn: "⏸️ 暂停", stuckBtn: "🔒 卡住",
+                undoBtn: "↩️ 撤销", lbBtn: "🏆 排行榜", timerTitle: "⏱️ 猎豹冲刺！",
+                pauseTitle: "⏸️ 游戏暂停", pauseDesc: "慢慢来，游戏在等你！",
+                resumeBtn: "继续 ▶️", restartPauseBtn: "🔄 重新开始关卡",
+                profileTitle: "👤 用户资料", profileDesc: "更新您的昵称和语言", saveBtn: "保存",
+                victoryTitle: "🎉 恭喜！", victorySub: "您已成功通关！",
+                rewardTxt: "+15 积分 | +10 金币！", nextBtn: "下一关 🚀",
+                deadlockTitle: "🔒 时间到 / 无路可走！", deadlockDesc: "请选择以下选项继续：",
+                revGold: "🪙 消耗40金币获得+40秒时间", revAd: "📺 观看广告（解锁额外试管）",
+                revWa: "💬 通过微信/WhatsApp邀请好友", restartDeadlockBtn: "🔄 从头开始",
+                lbTitle: "🏆 前10名排行榜", introNextBtn: "继续 🚀", introAdFreeBtn: "⭐ 去除广告 ($4.99)",
+                profileAdFreeBtn: "⭐ 去除广告 ($4.99)",
+                introNameLbl: "输入您的昵称", introLangLbl: "选择语言", closeBtn: "关闭",
+                adTitle: "赞助内容", adDesc: "探索令人惊叹的全新功能与专业应用！", adCloseReady: "✕ 关闭广告",
+                bannerText: "超级益智专业版 - 立即畅玩！",
+                choiceTitle: "🎮 发现存档！", choiceDesc: "您想从上次中断的地方继续还是开始新游戏？",
+                choiceContinue: "继续关卡 ▶️", choiceRestart: "🔄 从第1关开始", adFreeBadge: "⭐ 免广告"
+            },
+            ja: {
+                levelText: "レベル", pauseBtn: "⏸️ 一時停止", stuckBtn: "🔒 行詰まり",
+                undoBtn: "↩️ 元に戻す", lbBtn: "🏆 ランキング", timerTitle: "⏱️ チータースプリント！",
+                pauseTitle: "⏸️ ポーズ中", pauseDesc: "ゆっくりどうぞ！",
+                resumeBtn: "再開 ▶️", restartPauseBtn: "🔄 レベルをやり直す",
+                profileTitle: "👤 ユーザープロフィール", profileDesc: "名前と言語を更新", saveBtn: "保存",
+                victoryTitle: "🎉 おめでとうございます！", victorySub: "レベルクリア！",
+                rewardTxt: "+15 スコア | +10 コイン獲得！", nextBtn: "次のレベル 🚀",
+                deadlockTitle: "🔒 タイムアップ / 手詰まり！", deadlockDesc: "続ける方法を選んでください：",
+                revGold: "🪙 40コインで+40秒の追加時間", revAd: "📺 広告を見る（追加チューブ解除）",
+                revWa: "💬 WhatsAppで友達を招待", restartDeadlockBtn: "🔄 最初からやり直す",
+                lbTitle: "🏆 トップ10ランキング", introNextBtn: "続ける 🚀", introAdFreeBtn: "⭐ 広告なし ($4.99)",
+                profileAdFreeBtn: "⭐ 広告なし ($4.99)",
+                introNameLbl: "ニックネームを入力", introLangLbl: "言語を選択", closeBtn: "閉じる",
+                adTitle: "スポンサーコンテンツ", adDesc: "素晴らしい新しい機能を発見しよう！", adCloseReady: "✕ 広告を閉じる",
+                bannerText: "スーパーパズルPro - 今すぐプレイ！",
+                choiceTitle: "🎮 セーブデータが見つかりました", choiceDesc: "続きからプレイしますか？それとも最初から？",
+                choiceContinue: "続きから ▶️", choiceRestart: "🔄 レベル1から", adFreeBadge: "⭐ 広告なし"
+            },
+            ko: {
+                levelText: "레벨", pauseBtn: "⏸️ 일시정지", stuckBtn: "🔒 막힘",
+                undoBtn: "↩️ 실행 취소", lbBtn: "🏆 순위", timerTitle: "⏱️ 치타 스프린트!",
+                pauseTitle: "⏸️ 일시 정지됨", pauseDesc: "천천히 하세요!",
+                resumeBtn: "계속하기 ▶️", restartPauseBtn: "🔄 레벨 재시작",
+                profileTitle: "👤 사용자 프로필", profileDesc: "닉네임 및 언어 업데이트", saveBtn: "저장",
+                victoryTitle: "🎉 축하합니다!", victorySub: "레벨을 성공적으로 완료했습니다!",
+                rewardTxt: "+15 점수 | +10 코인 획득!", nextBtn: "다음 레벨 🚀",
+                deadlockTitle: "🔒 시간 초과 / 이동 불가!", deadlockDesc: "계속하려면 옵션을 선택하세요:",
+                revGold: "🪙 코인 40개로 +40초 추가 시간", revAd: "📺 광고 시청 (추가 튜브 해제)",
+                revWa: "💬 친구 초대하기", restartDeadlockBtn: "🔄 처음부터 다시 시작",
+                lbTitle: "🏆 상위 10위 리더보드", introNextBtn: "계속 🚀", introAdFreeBtn: "⭐ 광고 제거 ($4.99)",
+                profileAdFreeBtn: "⭐ 광고 제거 ($4.99)",
+                introNameLbl: "닉네임 입력", introLangLbl: "언어 선택", closeBtn: "닫기",
+                adTitle: "스폰서 콘텐츠", adDesc: "새롭고 멋진 기능을 만나보세요!", adCloseReady: "✕ 광고 닫기",
+                bannerText: "슈퍼 퍼즐 프로 - 지금 플레이!",
+                choiceTitle: "🎮 저장된 게임 발견!", choiceDesc: "이어서 플레이하시겠습니까, 새로 시작하시겠습니까?",
+                choiceContinue: "이어서 하기 ▶️", choiceRestart: "🔄 처음부터", adFreeBadge: "⭐ 광고 없음"
+            },
+            id: {
+                levelText: "Level", pauseBtn: "⏸️ Jeda", stuckBtn: "🔒 Buntu",
+                undoBtn: "↩️ Urungkan", lbBtn: "🏆 Peringkat", timerTitle: "⏱️ Lari Citata!",
+                pauseTitle: "⏸️ PERMAINAN DIJEDA", pauseDesc: "Santai saja, game menunggumu!",
+                resumeBtn: "Lanjutkan ▶️", restartPauseBtn: "🔄 Ulangi Level",
+                profileTitle: "👤 Profil Pengguna", profileDesc: "Perbarui Nama & Bahasa", saveBtn: "Simpan",
+                victoryTitle: "🎉 SELAMAT!", victorySub: "Kamu berhasil menyelesaikan level!",
+                rewardTxt: "+15 Skor | +10 Koin Diperoleh!", nextBtn: "Level Berikutnya 🚀",
+                deadlockTitle: "🔒 WAKTU HABIS / BUNTU!", deadlockDesc: "Pilih opsi di bawah untuk melanjutkan:",
+                revGold: "🪙 Bayar 40 Koin untuk +40s Waktu Ekstra", revAd: "📺 Tonton Iklan (Buka Tabung Ekstra)",
+                revWa: "💬 Undang Teman via WhatsApp", restartDeadlockBtn: "🔄 Mulai dari Awal",
+                lbTitle: "🏆 Peringkat 10 Besar", introNextBtn: "Lanjutkan 🚀", introAdFreeBtn: "⭐ Hapus Iklan ($4.99)",
+                profileAdFreeBtn: "⭐ Hapus Iklan ($4.99)",
+                introNameLbl: "Masukkan Nama Panggilan", introLangLbl: "Pilih Bahasa", closeBtn: "Tutup",
+                adTitle: "Konten Sponsor", adDesc: "Temukan fitur baru yang luar biasa!", adCloseReady: "✕ Tutup Iklan",
+                bannerText: "Super Puzzle Pro - Mainkan Sekarang!",
+                choiceTitle: "🎮 Permainan Tersimpan Ditemukan!", choiceDesc: "Ingin melanjutkan atau mulai baru?",
+                choiceContinue: "Lanjutkan Level ▶️", choiceRestart: "🔄 Mulai dari Level 1", adFreeBadge: "⭐ Tanpa Iklan"
+            },
+            hi: {
+                levelText: "स्तर", pauseBtn: "⏸️ रोकें", stuckBtn: "🔒 फँस गए",
+                undoBtn: "↩️ पूर्ववत करें", lbBtn: "🏆 रैंकिंग", timerTitle: "⏱️ चीता दौड़!",
+                pauseTitle: "⏸️ खेल रुका हुआ है", pauseDesc: "अपना समय लें!",
+                resumeBtn: "जारी रखें ▶️", restartPauseBtn: "🔄 स्तर पुनः आरंभ करें",
+                profileTitle: "👤 उपयोगकर्ता प्रोफ़ाइल", profileDesc: "अपना नाम और भाषा अपडेट करें", saveBtn: "सहेजें",
+                victoryTitle: "🎉 बधाई हो!", victorySub: "आपने स्तर सफलतापूर्वक पूरा कर लिया!",
+                rewardTxt: "+15 स्कोर | +10 सिक्के जीते!", nextBtn: "अगला स्तर 🚀",
+                deadlockTitle: "🔒 समय समाप्त / कोई चाल नहीं!", deadlockDesc: "जारी रखने के लिए विकल्प चुनें:",
+                revGold: "🪙 +40s अतिरिक्त समय के लिए 40 सिक्के दें", revAd: "📺 विज्ञापन देखें (अतिरिक्त ट्यूब)",
+                revWa: "💬 दोस्तों को आमंत्रित करें", restartDeadlockBtn: "🔄 शुरुआत से पुनः आरंभ करें",
+                lbTitle: "🏆 शीर्ष 10 लीडरबोर्ड", introNextBtn: "जारी रखें 🚀", introAdFreeBtn: "⭐ विज्ञापन हटाएं ($4.99)",
+                profileAdFreeBtn: "⭐ विज्ञापन हटाएं ($4.99)",
+                introNameLbl: "अपना उपनाम दर्ज करें", introLangLbl: "भाषा चुनें", closeBtn: "बंद करें",
+                adTitle: "प्रायोजित सामग्री", adDesc: "शानदार नई सुविधाएँ खोजें!", adCloseReady: "✕ विज्ञापन बंद करें",
+                bannerText: "सुपर पज़ल प्रो - अभी खेलें!",
+                choiceTitle: "🎮 सहेजा गया गेम मिला!", choiceDesc: "क्या आप जारी रखना चाहते हैं या नया?",
+                choiceContinue: "जारी रखें ▶️", choiceRestart: "🔄 स्तर 1 से शुरू करें", adFreeBadge: "⭐ विज्ञापन-मुक्त"
+            },
+            vi: {
+                levelText: "Cấp độ", pauseBtn: "⏸️ Tạm dừng", stuckBtn: "🔒 Kẹt",
+                undoBtn: "↩️ Hoàn tác", lbBtn: "🏆 Xếp hạng", timerTitle: "⏱️ Tốc độ Báo Gấm!",
+                pauseTitle: "⏸️ TẠM DỪNG TRÒ CHƠI", pauseDesc: "Cứ thong thả!",
+                resumeBtn: "Tiếp tục ▶️", restartPauseBtn: "🔄 Chơi lại cấp độ",
+                profileTitle: "👤 Hồ sơ người dùng", profileDesc: "Cập nhật tên và ngôn ngữ", saveBtn: "Lưu",
+                victoryTitle: "🎉 CHÚC MỪNG!", victorySub: "Bạn đã hoàn thành cấp độ!",
+                rewardTxt: "+15 Điểm | +10 Xu!", nextBtn: "Cấp độ tiếp theo 🚀",
+                deadlockTitle: "🔒 HẾT GIỜ / HẾT NƯỚC ĐI!", deadlockDesc: "Chọn một tùy chọn bên dưới:",
+                revGold: "🪙 Trả 40 xu để thêm +40s thời gian", revAd: "📺 Xem quảng cáo (Mở ống phụ)",
+                revWa: "💬 Mời bạn bè qua WhatsApp", restartDeadlockBtn: "🔄 Chơi lại từ đầu",
+                lbTitle: "🏆 Top 10 Bảng xếp hạng", introNextBtn: "Tiếp tục 🚀", introAdFreeBtn: "⭐ Xóa quảng cáo ($4.99)",
+                profileAdFreeBtn: "⭐ Xóa quảng cáo ($4.99)",
+                introNameLbl: "Nhập biệt hiệu của bạn", introLangLbl: "Chọn ngôn ngữ", closeBtn: "Đóng",
+                adTitle: "Nội dung tài trợ", adDesc: "Khám phá các tính năng tuyệt vời!", adCloseReady: "✕ Đóng quảng cáo",
+                bannerText: "Super Puzzle Pro - Chơi ngay!",
+                choiceTitle: "🎮 Tìm thấy trò chơi đã lưu!", choiceDesc: "Bạn có muốn tiếp tục hay chơi mới?",
+                choiceContinue: "Tiếp tục ▶️", choiceRestart: "🔄 Bắt đầu từ cấp 1", adFreeBadge: "⭐ Không quảng cáo"
+            },
+            th: {
+                levelText: "ระดับ", pauseBtn: "⏸️ หยุดชั่วคราว", stuckBtn: "🔒 ติดขัด",
+                undoBtn: "↩️ เลิกทำ", lbBtn: "🏆 อันดับ", timerTitle: "⏱️ ชีตาร์สปรินต์!",
+                pauseTitle: "⏸️ เกมหยุดชั่วคราว", pauseDesc: "ตามสบายเลย!",
+                resumeBtn: "เล่นต่อ ▶️", restartPauseBtn: "🔄 เริ่มระดับใหม่",
+                profileTitle: "👤 โปรไฟล์ผู้ใช้", profileDesc: "อัปเดตชื่อและภาษาของคุณ", saveBtn: "บันทึก",
+                victoryTitle: "🎉 ยินดีด้วย!", victorySub: "คุณผ่านด่านสำเร็จ!",
+                rewardTxt: "+15 คะแนน | +10 เหรียญ!", nextBtn: "ด่านถัดไป 🚀",
+                deadlockTitle: "🔒 หมดเวลา / ไม่มีตาเดิน!", deadlockDesc: "เลือกตัวเลือกด้านล่าง:",
+                revGold: "🪙 จ่าย 40 เหรียญเพื่อรับเวลาเพิ่ม +40s", revAd: "📺 ดูโฆษณา (ปลดล็อกหลอดเพิ่ม)",
+                revWa: "💬 เชิญเพื่อนผ่าน WhatsApp", restartDeadlockBtn: "🔄 เริ่มใหม่ตั้งแต่ต้น",
+                lbTitle: "🏆 10 อันดับสูงสุด", introNextBtn: "ดำเนินการต่อ 🚀", introAdFreeBtn: "⭐ เอาโฆษณาออก ($4.99)",
+                profileAdFreeBtn: "⭐ เอาโฆษณาออก ($4.99)",
+                introNameLbl: "ป้อนชื่อเล่นของคุณ", introLangLbl: "เลือกภาษา", closeBtn: "ปิด",
+                adTitle: "เนื้อหาผู้สนับสนุน", adDesc: "ค้นพบฟีเจอร์ใหม่สุดยอด!", adCloseReady: "✕ ปิดโฆษณา",
+                bannerText: "ซูเปอร์พัซเซิลโปร - เล่นเลย!",
+                choiceTitle: "🎮 พบข้อมูลเกมที่บันทึกไว้!", choiceDesc: "ต้องการเล่นต่อจากเดิมหรือเริ่มใหม่?",
+                choiceContinue: "เล่นต่อ ▶️", choiceRestart: "🔄 เริ่มจากด่าน 1", adFreeBadge: "⭐ ไม่มีโฆษณา"
+            },
+            az: {
+                levelText: "Səviyyə", pauseBtn: "⏸️ Dayandır", stuckBtn: "🔒 Çıxmazda",
+                undoBtn: "↩️ Geri Al", lbBtn: "🏆 Sıralama", timerTitle: "⏱️ Çita Qaçışı!",
+                pauseTitle: "⏸️ OYUN DAYANDIRILDI", pauseDesc: "Tələsmə, oyun seni gözləyir!",
+                resumeBtn: "Davam Et ▶️", restartPauseBtn: "🔄 Səviyyəni Yenidən Başlat",
+                profileTitle: "👤 Profil Məlumatları", profileDesc: "Adınızı və Dilinizi Yeniləyin", saveBtn: "Yadda saxla",
+                victoryTitle: "🎉 TƏBRİklƏR!", victorySub: "Səviyyəni Uğurla Tamamladın!",
+                rewardTxt: "+15 Xal | +10 Qızıl Qazandın!", nextBtn: "Növbəti Səviyyə 🚀",
+                deadlockTitle: "🔒 VAXT BİTDİ / GEDİŞ QALMADI!", deadlockDesc: "Davam etmək üçün birini seçin:",
+                revGold: "🪙 40 Qızıl Ödə +35 Saniyə Əlavə Vaxt Al", revAd: "📺 Reklam İzlə (Boş Boru Aç)",
+                revWa: "💬 Dostunu Dəvət Et (Səviyyəni Keç)", restartDeadlockBtn: "🔄 Baştan Başla",
+                lbTitle: "🏆 Top 10 Liderlər Cədvəli", introNextBtn: "Davam Et 🚀", introAdFreeBtn: "⭐ Reklamları Sil ($4.99)",
+                profileAdFreeBtn: "⭐ Reklamları Sil ($4.99)",
+                introNameLbl: "Ləqəbinizi daxil edin", introLangLbl: "Dil Seçin", closeBtn: "Bağla",
+                adTitle: "Sponsorlu Reklam", adDesc: "Maraqlı xüsusiyyətləri və yeni tətbiqləri kəşf edin!", adCloseReady: "✕ Reklamı Bağla",
+                bannerText: "Super Tapmaca Pro - İndi Oyna!",
+                choiceTitle: "🎮 Yadda Qalmış Oyun Tapıldı!", choiceDesc: "Kaldığın yerdən davam etmək istəyirsən yoxsa yenidən?",
+                choiceContinue: "Davam Et ▶️", choiceRestart: "🔄 Yenidən Başla", adFreeBadge: "⭐ Reklamsız"
+            }
+        };
+
+        let currentLang = 'en';
+        let labLevel = 1;
+
+        function openMetaModal() {
+            if (!isPaused && !isGameOver && !isAdShowing) togglePause();
+            updateLabModalUI();
+            document.getElementById('metaModal').classList.remove('hidden');
+        }
+
+        function closeMetaModal() {
+            document.getElementById('metaModal').classList.add('hidden');
+            if (isPaused && !isAdShowing) togglePause();
+        }
+
+        function updateLabModalUI() {
+            let cost = labLevel * 100;
+            document.getElementById('metaStatusDisplay').innerText = `🧪 Lab Seviyesi: ${labLevel} (Pasif Altın Üretimi Aktif!)`;
+            document.getElementById('metaUpgradeBtn').innerText = `⚡ Laboratuvarı Geliştir (${cost} Altın)`;
+        }
+
+        function upgradeLab() {
+            let cost = labLevel * 100;
+            if (userCoins >= cost) {
+                userCoins -= cost;
+                labLevel++;
+                updateHUD();
+                updateLabModalUI();
+                alert(currentLang === 'tr' ? "Laboratuvar başarıyla geliştirildi!" : "Laboratory upgraded successfully!");
+                saveGameState();
+            } else {
+                alert(currentLang === 'tr' ? "Yeterli altının yok!" : "Not enough coins!");
+            }
+        }
+
+        function openPvpModal() {
+            if (!isPaused && !isGameOver && !isAdShowing) togglePause();
+            document.getElementById('pvpModal').classList.remove('hidden');
+        }
+
+        function closePvpModal() {
+            document.getElementById('pvpModal').classList.add('hidden');
+            if (isPaused && !isAdShowing) togglePause();
+        }
+
+        function startPvPMatch() {
+            const statusEl = document.getElementById('pvpStatusDisplay');
+            statusEl.innerText = "⚔️ Rakip bulundu: 'Alex_Pro' (Eşleşiliyor...)";
+            setTimeout(() => {
+                alert(currentLang === 'tr' ? "PvP Maçı Başladı! Bulmacayı ilk bitiren kazanır!" : "PvP Match Started! First to finish wins!");
+                closePvpModal();
+            }, 1500);
+        }
+
+        function triggerGoldRain() {
+            const container = document.getElementById('goldRainContainer');
+            container.innerHTML = '';
+            container.classList.add('active');
+
+            for (let i = 0; i < 35; i++) {
+                const coin = document.createElement('div');
+                coin.className = 'falling-coin';
+                coin.innerText = '🪙';
+                coin.style.left = `${Math.random() * 100}vw`;
+                coin.style.animationDuration = `${1.5 + Math.random() * 2}s`;
+                coin.style.animationDelay = `${Math.random() * 1}s`;
+                container.appendChild(coin);
+            }
+
+            setTimeout(() => {
+                container.classList.remove('active');
+                container.innerHTML = '';
+            }, 3500);
+        }
+
+        function onIntroLangChange(langVal) {
+            currentLang = translations[langVal] ? langVal : 'en';
+            const t = translations[currentLang];
+            
+            document.getElementById('introNameLbl').innerText = t.introNameLbl;
+            document.getElementById('introLangLbl').innerText = t.introLangLbl;
+            document.getElementById('introNextBtn').innerText = t.introNextBtn;
+            document.getElementById('introAdFreeBtn').innerText = t.introAdFreeBtn;
+        }
+
+        function applyLanguage(lang) {
+            currentLang = translations[lang] ? lang : 'en';
+            const t = translations[currentLang];
+
+            document.getElementById('btnPause').innerText = t.pauseBtn;
+            document.getElementById('btnStuck').innerText = t.stuckBtn;
+            document.getElementById('btnUndo').innerText = t.undoBtn;
+            document.getElementById('btnLb').innerText = t.lbBtn;
+            document.getElementById('timerTitle').innerText = t.timerTitle;
+            
+            document.getElementById('pauseTitleText').innerText = t.pauseTitle;
+            document.getElementById('pauseDescText').innerText = t.pauseDesc;
+            document.getElementById('resumeBtn').innerText = t.resumeBtn;
+            document.getElementById('restartFromPauseBtn').innerText = t.restartPauseBtn;
+
+            document.getElementById('profileTitleText').innerText = t.profileTitle;
+            document.getElementById('profileDescText').innerText = t.profileDesc;
+            document.getElementById('profileSaveBtn').innerText = t.saveBtn;
+
+            document.getElementById('victoryTitleText').innerText = t.victoryTitle;
+            document.getElementById('victorySubText').innerText = t.victorySub;
+            document.getElementById('rewardText').innerText = t.rewardTxt;
+            document.getElementById('nextLevelBtn').innerText = t.nextBtn;
+
+            document.getElementById('deadlockTitle').innerText = t.deadlockTitle;
+            document.getElementById('deadlockDesc').innerText = t.deadlockDesc;
+            document.getElementById('reviveGoldText').innerText = t.revGold;
+            document.getElementById('reviveAdText').innerText = t.revAd;
+            document.getElementById('reviveWaText').innerText = t.revWa;
+            document.getElementById('restartFromDeadlockBtn').innerText = t.restartDeadlockBtn;
+
+            document.getElementById('lbTitleText').innerText = t.lbTitle;
+            document.getElementById('lbCloseBtn').innerText = t.closeBtn;
+
+            document.getElementById('introNameLbl').innerText = t.introNameLbl;
+            document.getElementById('introLangLbl').innerText = t.introLangLbl;
+            document.getElementById('introNextBtn').innerText = t.introNextBtn;
+            document.getElementById('introAdFreeBtn').innerText = t.introAdFreeBtn;
+            document.getElementById('profileAdFreeBtn').innerText = t.profileAdFreeBtn;
+
+            document.getElementById('adTitleText').innerText = t.adTitle;
+            document.getElementById('adDescText').innerText = t.adDesc;
+            document.getElementById('bannerAdText').innerText = t.bannerText;
+
+            document.getElementById('choiceTitleText').innerText = t.choiceTitle;
+            document.getElementById('choiceDescText').innerText = t.choiceDesc;
+            document.getElementById('choiceContinueBtn').innerText = t.choiceContinue;
+            document.getElementById('choiceRestartBtn').innerText = t.choiceRestart;
+
+            document.getElementById('levelText').innerText = `${t.levelText} ${currentLevel + 1}`;
+            updateLabModalUI();
+            updateAdFreeUI();
+        }
+
+        let audioCtx = null;
+        let musicTimer = null;
+        let ambientStep = 0;
+
+        function initAudio() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            } catch (e) {}
+        }
+
+        function startModernAmbientMusic() {
+            if (!audioCtx) return;
+            if (musicTimer) clearInterval(musicTimer);
+
+            const lofiChordSet = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
+            const tensionSet   = [220.00, 246.94, 293.66, 349.23, 440.00];
+
+            musicTimer = setInterval(() => {
+                if (isPaused || isGameOver || !audioCtx) return;
+                try {
+                    const isTensionMode = timePassed >= (totalTime / 2);
+                    const now = audioCtx.currentTime;
+                    
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    const filter = audioCtx.createBiquadFilter();
+
+                    osc.type = isTensionMode ? 'triangle' : 'sine';
+                    const notes = isTensionMode ? tensionSet : lofiChordSet;
+                    let freq = notes[ambientStep % notes.length];
+
+                    osc.frequency.setValueAtTime(freq, now);
+                    
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(isTensionMode ? 1000 : 500, now);
+
+                    const volume = isTensionMode ? 0.045 : 0.035;
+                    gain.gain.setValueAtTime(0.001, now);
+                    gain.gain.linearRampToValueAtTime(volume, now + 0.15);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.5);
+
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.start(now);
+                    osc.stop(now + 1.5);
+                    ambientStep++;
+                } catch(err) {}
+            }, 500);
+        }
+
+        function playPopSound() {
+            if (!audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sine'; 
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+            } catch(e) {}
+        }
+
+        function playWinSound() {
+            if (!audioCtx) return;
+            try {
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                    osc.type = 'sine'; osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.1 + 0.4);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(audioCtx.currentTime + idx * 0.1);
+                    osc.stop(audioCtx.currentTime + idx * 0.1 + 0.4);
+                });
+            } catch(e) {}
+        }
+
+        function playFailSound() {
+            if (!audioCtx) return;
+            try {
+                [300, 260, 200].forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                    osc.type = 'triangle'; osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime + idx * 0.15);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.15 + 0.3);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(audioCtx.currentTime + idx * 0.15);
+                    osc.stop(audioCtx.currentTime + idx * 0.15 + 0.3);
+                });
+            } catch(e) {}
+        }
+
+        const colorsPalette = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+        let currentLevel = 0;
+        let tubesData = [];
+        let moveHistory = [];
+        let selectedTubeIndex = null;
+
+        let userScore = 0;
+        let userCoins = 100;
+        let playerName = "Player";
+        let playerLang = "en";
+        let isAdFree = false;
+
+        let totalTime = 40;
+        let timePassed = 0;
+        let timerInterval = null;
+        let isGameOver = false;
+        let isPaused = true;
+        let isAdShowing = false;
+
+        function saveGameState() {
+            const gameState = {
+                currentLevel,
+                userScore,
+                userCoins,
+                playerName,
+                playerLang,
+                currentLang,
+                isAdFree,
+                labLevel,
+                hasActiveSave: true
+            };
+            localStorage.setItem('logicTubeProSave', JSON.stringify(gameState));
+        }
+
+        function loadGameStateToMemory() {
+            const saved = localStorage.getItem('logicTubeProSave');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    return data;
+                } catch(e) {
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        function submitProfileAndProceed() {
+            initAudio();
+            const nameVal = document.getElementById('introNameInput').value.trim();
+            const langVal = document.getElementById('introLangSelect').value;
+            
+            if (nameVal) playerName = nameVal;
+            currentLang = langVal;
+            playerLang = langVal;
+
+            document.getElementById('userNameDisplay').innerText = playerName;
+            document.getElementById('lbUserTag').innerText = playerName;
+            document.getElementById('nicknameInput').value = playerName;
+
+            applyLanguage(currentLang);
+            document.getElementById('introOverlay').classList.add('hidden');
+
+            const existingSave = loadGameStateToMemory();
+            if (existingSave && existingSave.hasActiveSave) {
+                document.getElementById('saveChoiceModal').classList.remove('hidden');
+            } else {
+                currentLevel = 0;
+                userScore = 0;
+                userCoins = 100;
+                isAdFree = existingSave ? existingSave.isAdFree : false;
+                labLevel = existingSave ? (existingSave.labLevel || 1) : 1;
+                saveGameState();
+                initGame();
+            }
+        }
+
+        function chooseContinueGame() {
+            const existingSave = loadGameStateToMemory();
+            if (existingSave) {
+                currentLevel = existingSave.currentLevel || 0;
+                userScore = existingSave.userScore || 0;
+                userCoins = existingSave.userCoins !== undefined ? existingSave.userCoins : 100;
+                isAdFree = existingSave.isAdFree || false;
+                labLevel = existingSave.labLevel || 1;
+            }
+            document.getElementById('saveChoiceModal').classList.add('hidden');
+            saveGameState();
+            initGame();
+        }
+
+        function chooseRestartGame() {
+            currentLevel = 0;
+            userScore = 0;
+            userCoins = 100;
+            const existingSave = loadGameStateToMemory();
+            isAdFree = existingSave ? existingSave.isAdFree : false;
+            labLevel = existingSave ? (existingSave.labLevel || 1) : 1;
+            document.getElementById('saveChoiceModal').classList.add('hidden');
+            saveGameState();
+            initGame();
+        }
+
+        function buyAdFreeVersion() {
+            initAudio();
+            const confirmMsg = currentLang === 'tr' 
+                ? "Reklamsız oyna sürümü 4.99 USD karşılığında satın alınıyor mu?" 
+                : "Would you like to purchase the Ad-Free version for $4.99?";
+            
+            if (confirm(confirmMsg)) {
+                isAdFree = true;
+                saveGameState();
+                updateAdFreeUI();
+                alert(currentLang === 'tr' ? "Teşekkürler! Reklamlar kalıcı olarak kaldırıldı." : "Thank you! Ads have been permanently removed.");
+            }
+        }
+
+        function updateAdFreeUI() {
+            const badgeContainer = document.getElementById('adFreeBadgeContainer');
+            const footer = document.getElementById('bannerAdFooter');
+            const t = translations[currentLang];
+
+            if (isAdFree) {
+                badgeContainer.innerHTML = `<span class="ad-free-badge">${t.adFreeBadge}</span>`;
+                footer.classList.add('hidden');
+                document.body.classList.add('ad-free');
+            } else {
+                badgeContainer.innerHTML = '';
+                footer.classList.remove('hidden');
+                document.body.classList.remove('ad-free');
+            }
+        }
+
+        function openLeaderboard() {
+            if (!isPaused && !isGameOver && !isAdShowing) togglePause();
+            document.getElementById('lbModal').classList.remove('hidden');
+        }
+
+        function closeLeaderboard() {
+            document.getElementById('lbModal').classList.add('hidden');
+            if (isPaused && !isAdShowing) togglePause();
+        }
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && !isGameOver && !isPaused && !isAdShowing) togglePause();
+        });
+
+        function togglePause() {
+            if (isGameOver || isAdShowing) return;
+            isPaused = !isPaused;
+            const pauseModal = document.getElementById('pauseModal');
+            if (isPaused) pauseModal.classList.remove('hidden');
+            else pauseModal.classList.add('hidden');
+        }
+
+        function openProfileModal() {
+            if (!isPaused && !isGameOver && !isAdShowing) togglePause();
+            document.getElementById('profileModal').classList.remove('hidden');
+        }
+
+        function saveProfile() {
+            const nameVal = document.getElementById('nicknameInput').value.trim();
+            const langVal = document.getElementById('countrySelect').value;
+            if (nameVal) playerName = nameVal;
+            currentLang = langVal;
+            playerLang = langVal;
+
+            document.getElementById('userNameDisplay').innerText = playerName;
+            document.getElementById('lbUserTag').innerText = playerName;
+
+            applyLanguage(currentLang);
+            saveGameState();
+
+            document.getElementById('profileModal').classList.add('hidden');
+            if (isPaused && !isAdShowing) togglePause();
+        }
+
+        function updateHUD() {
+            document.getElementById('scoreText').innerText = userScore;
+            document.getElementById('coinText').innerText = userCoins;
+            document.getElementById('lbUserScore').innerText = `${userScore} p`;
+            document.getElementById('levelText').innerText = `${translations[currentLang].levelText} ${currentLevel + 1}`;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            totalTime = 40;
+            timePassed = 0;
+            isGameOver = false;
+            updateTimerUI();
+            startModernAmbientMusic();
+
+            timerInterval = setInterval(() => {
+                if (isGameOver || isPaused || isAdShowing) return;
+                timePassed++;
+                updateTimerUI();
+
+                if (timePassed >= totalTime) {
+                    clearInterval(timerInterval);
+                    triggerDeadlock(currentLang === 'tr' ? "⏰ ZAMAN BİTTİ!" : "⏰ TIME'S UP!");
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            const timeLeft = Math.max(0, totalTime - timePassed);
+            document.getElementById('timeText').innerText = `${timeLeft}s`;
+            const pct = Math.min(100, (timePassed / totalTime) * 100);
+            document.getElementById('timerFill').style.width = `${pct}%`;
+            document.getElementById('cheetah').style.left = `${pct}%`;
+        }
+
+        function generateLevel(levelIndex) {
+            let numColors = Math.min(3 + Math.floor(levelIndex / 4), 6);
+            let activeColors = colorsPalette.slice(0, numColors);
+            let pool = [];
+            activeColors.forEach(c => pool.push(c, c, c, c));
+
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+
+            let newTubes = [];
+            for (let i = 0; i < numColors; i++) {
+                newTubes.push(pool.slice(i * 4, (i + 1) * 4));
+            }
+
+            newTubes.push([]);
+            newTubes.push([]);
+
+            return newTubes;
+        }
+
+        function initGame() {
+            tubesData = generateLevel(currentLevel);
+            moveHistory = [];
+            selectedTubeIndex = null;
+            
+            document.getElementById('victoryModal').classList.add('hidden');
+            document.getElementById('deadlockModal').classList.add('hidden');
+            document.getElementById('lbModal').classList.add('hidden');
+            document.getElementById('pauseModal').classList.add('hidden');
+            document.getElementById('saveChoiceModal').classList.add('hidden');
+            
+            document.getElementById('userNameDisplay').innerText = playerName;
+            document.getElementById('lbUserTag').innerText = playerName;
+            document.getElementById('nicknameInput').value = playerName;
+
+            updateHUD();
+            render();
+            updateAdFreeUI();
+            
+            isPaused = false;
+            startTimer();
+        }
+
+        function resetLevel() {
+            initGame();
+        }
+
+        function checkAndShowInterstitialAd(onAdDismissed) {
+            if (isAdFree) {
+                if (typeof onAdDismissed === 'function') onAdDismissed();
+                return;
+            }
+
+            if ((currentLevel + 1) % 5 === 0) {
+                isAdShowing = true;
+                isPaused = true;
+                if (musicTimer) clearInterval(musicTimer);
+                clearInterval(timerInterval);
+
+                const adOverlay = document.getElementById('adInterstitialOverlay');
+                const closeBtn = document.getElementById('adCloseBtn');
+                const t = translations[currentLang];
+                
+                closeBtn.classList.remove('ready');
+                let countdown = 3;
+                closeBtn.innerText = `✕ ${t.adCloseReady} (${countdown}s)`;
+                adOverlay.classList.remove('hidden');
+
+                let adTimer = setInterval(() => {
+                    countdown--;
+                    if (countdown > 0) {
+                        closeBtn.innerText = `✕ ${t.adCloseReady} (${countdown}s)`;
+                    } else {
+                        clearInterval(adTimer);
+                        closeBtn.innerText = t.adCloseReady;
+                        closeBtn.classList.add('ready');
+                    }
+                }, 1000);
+
+                window.resumeAfterAd = () => {
+                    adOverlay.classList.add('hidden');
+                    isAdShowing = false;
+                    if (typeof onAdDismissed === 'function') onAdDismissed();
+                };
+            } else {
+                if (typeof onAdDismissed === 'function') onAdDismissed();
+            }
+        }
+
+        function closeInterstitialAd() {
+            const closeBtn = document.getElementById('adCloseBtn');
+            if (closeBtn.classList.contains('ready')) {
+                if (typeof window.resumeAfterAd === 'function') {
+                    window.resumeAfterAd();
+                }
+            }
+        }
+
+        function nextLevel() {
+            currentLevel++;
+            saveGameState();
+            
+            checkAndShowInterstitialAd(() => {
+                initGame();
+            });
+        }
+
+        function undoMove() {
+            if (moveHistory.length === 0 || isGameOver || isPaused || isAdShowing) return;
+            tubesData = moveHistory.pop();
+            selectedTubeIndex = null;
+            render();
+        }
+
+        function render() {
+            const board = document.getElementById('board'); 
+            if (!board) return;
+            board.innerHTML = '';
+            
+            tubesData.forEach((tube, index) => {
+                const tubeEl = document.createElement('div');
+                tubeEl.className = 'tube' + (selectedTubeIndex === index ? ' selected' : '');
+                tubeEl.id = `tube-${index}`;
+                
+                tubeEl.onclick = (e) => { 
+                    e.stopPropagation(); 
+                    initAudio(); 
+                    handleTubeClick(index); 
+                };
+                
+                tube.forEach(color => {
+                    const liquidEl = document.createElement('div');
+                    liquidEl.className = `liquid ${color}`;
+                    tubeEl.appendChild(liquidEl);
+                });
+
+                board.appendChild(tubeEl);
+            });
+        }
+
+        function findValidMove() {
+            let emptyCount = 0;
+            let movesPossible = false;
+
+            for (let i = 0; i < tubesData.length; i++) {
+                if (tubesData[i].length === 0) {
+                    emptyCount++;
+                    continue;
+                }
+                const topColor = tubesData[i][tubesData[i].length - 1];
+                let isCompleted = (tubesData[i].length === 4 && tubesData[i].every(b => b === topColor));
+                if (isCompleted) continue;
+
+                for (let j = 0; j < tubesData.length; j++) {
+                    if (i === j) continue;
+                    if (tubesData[j].length < 4) {
+                        if (tubesData[j].length === 0) {
+                            movesPossible = true;
+                        } else if (tubesData[j][tubesData[j].length - 1] === topColor) {
+                            movesPossible = true;
+                        }
+                    }
+                }
+            }
+            return movesPossible || (emptyCount > 0);
+        }
+
+        function triggerDeadlock(customTitle) {
+            if (isGameOver || isAdShowing) return;
+            isGameOver = true;
+            if (musicTimer) clearInterval(musicTimer);
+            clearInterval(timerInterval);
+            playFailSound();
+            updateHUD();
+            
+            document.getElementById('deadlockTitle').innerText = customTitle || (currentLang === 'tr' ? "🔒 HAMLE KALMADI!" : "🔒 NO MOVES LEFT!");
+            document.getElementById('deadlockModal').classList.remove('hidden');
+        }
+
+        function reviveByGold() {
+            if (userCoins >= 40) {
+                userCoins -= 40;
+                isGameOver = false;
+                document.getElementById('deadlockModal').classList.add('hidden');
+                
+                totalTime += 40;
+                startTimer();
+                updateHUD();
+                saveGameState();
+            } else {
+                alert(currentLang === 'tr' ? "Yeterli altının yok!" : "Not enough coins!");
+            }
+        }
+
+        function reviveByAd() {
+            userCoins += 30;
+            tubesData.push([]);
+            isGameOver = false;
+            document.getElementById('deadlockModal').classList.add('hidden');
+            startTimer();
+            render();
+            updateHUD();
+            saveGameState();
+        }
+
+        function reviveByWhatsApp() {
+            document.getElementById('deadlockModal').classList.add('hidden');
+            nextLevel();
+        }
+
+        function handleTubeClick(index) {
+            if (isGameOver || isPaused || isAdShowing) return;
+
+            if (selectedTubeIndex === null) {
+                if (tubesData[index].length > 0) {
+                    selectedTubeIndex = index;
+                    playPopSound();
+                }
+            } else {
+                if (selectedTubeIndex === index) {
+                    selectedTubeIndex = null;
+                } else {
+                    const fromT = tubesData[selectedTubeIndex];
+                    const toT = tubesData[index];
+                    const colorToMove = fromT[fromT.length - 1];
+
+                    let moveCount = 0;
+                    for (let k = fromT.length - 1; k >= 0; k--) {
+                        if (fromT[k] === colorToMove) moveCount++;
+                        else break;
+                    }
+
+                    let spaceLeft = 4 - toT.length;
+                    let canMove = (toT.length === 0 || toT[toT.length - 1] === colorToMove);
+
+                    if (canMove && spaceLeft > 0) {
+                        let actualMove = Math.min(moveCount, spaceLeft);
+                        moveHistory.push(JSON.parse(JSON.stringify(tubesData)));
+
+                        let movedColors = [];
+                        for (let m = 0; m < actualMove; m++) movedColors.push(fromT.pop());
+                        for (let m = 0; m < actualMove; m++) toT.push(movedColors.pop());
+
+                        playPopSound();
+                        selectedTubeIndex = null;
+                        
+                        render();
+                        checkWinCondition();
+
+                        if (!isGameOver) {
+                            setTimeout(() => {
+                                if (!findValidMove()) {
+                                    triggerDeadlock();
+                                }
+                            }, 100);
+                        }
+                    } else {
+                        selectedTubeIndex = index;
+                        playPopSound();
+                    }
+                }
+            }
+            render();
+        }
+
+        function checkWinCondition() {
+            let activeTubesCount = 0;
+            let correctTubesCount = 0;
+
+            tubesData.forEach(tube => {
+                if (tube.length > 0) {
+                    activeTubesCount++;
+                    if (tube.length === 4) {
+                        let c = tube[0];
+                        if (tube.every(ball => ball === c)) {
+                            correctTubesCount++;
+                        }
+                    }
+                }
+            });
+
+            if (activeTubesCount > 0 && correctTubesCount === activeTubesCount) {
+                isGameOver = true;
+                if (musicTimer) clearInterval(musicTimer);
+                clearInterval(timerInterval);
+                playWinSound();
+
+                userScore += 15;
+                userCoins += 10;
+                updateHUD();
+                saveGameState();
+
+                triggerGoldRain();
+                document.getElementById('victoryModal').classList.remove('hidden');
+            }
+        }
+
+        window.onload = () => {
+            const savedData = loadGameStateToMemory();
+            if (savedData) {
+                playerName = savedData.playerName || "Player";
+                playerLang = savedData.playerLang || "en";
+                currentLang = savedData.currentLang || "en";
+                isAdFree = savedData.isAdFree || false;
+                labLevel = savedData.labLevel || 1;
+                userCoins = savedData.userCoins !== undefined ? savedData.userCoins : 100;
+
+                document.getElementById('introNameInput').value = playerName;
+                const langSelect = document.getElementById('introLangSelect');
+                for (let i = 0; i < langSelect.options.length; i++) {
+                    if (langSelect.options[i].value === currentLang) {
+                        langSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+                const profileLangSelect = document.getElementById('countrySelect');
+                for (let i = 0; i < profileLangSelect.options.length; i++) {
+                    if (profileLangSelect.options[i].value === currentLang) {
+                        profileLangSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+            onIntroLangChange(document.getElementById('introLangSelect').value);
+            applyLanguage(currentLang);
+        };
+    </script>
+</body>
+</html>
