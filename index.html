@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Logic Tube: Color Puzzle v4.9 Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-touch-callout: none; }
         body {
             background: radial-gradient(circle at center, #1a1c29 0%, #0c0d14 100%);
             font-family: 'Outfit', sans-serif;
-            color: #ffffff; min-height: 100vh; display: flex;
-            flex-direction: column; align-items: center; justify-content: space-between;
-            padding: 12px 10px 62px 10px; overflow-y: auto; position: relative;
+            color: #ffffff; width: 100vw; height: 100vh; height: 100dvh;
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+            padding: 10px 10px 60px 10px; overflow: hidden; position: fixed; inset: 0;
         }
 
         .intro-overlay, .modal, .ad-interstitial-overlay {
@@ -48,7 +48,7 @@
 
         .header {
             width: 100%; max-width: 440px; display: flex; justify-content: space-between;
-            align-items: center; padding: 12px 16px; background: rgba(255, 255, 255, 0.04);
+            align-items: center; padding: 10px 16px; background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(8px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08); flex-shrink: 0;
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
@@ -66,10 +66,10 @@
         .hud-stats { display: flex; gap: 8px; font-size: 13px; font-weight: 800; }
         .stat-box { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); }
 
-        .controls { display: flex; gap: 8px; margin: 12px 0; flex-shrink: 0; flex-wrap: wrap; justify-content: center; }
+        .controls { display: flex; gap: 8px; margin: 8px 0; flex-shrink: 0; flex-wrap: wrap; justify-content: center; }
         .btn {
             background: rgba(255, 255, 255, 0.06); color: #fff; border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 9px 14px; border-radius: 14px; font-weight: 700; cursor: pointer;
+            padding: 8px 12px; border-radius: 14px; font-weight: 700; cursor: pointer;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 6px;
             font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
@@ -81,28 +81,27 @@
         .btn-stuck { background: linear-gradient(135deg, #ef4444, #991b1b); border: none; color: #fff; }
 
         .game-board { 
-            display: flex; justify-content: center; align-items: flex-end; 
-            gap: 12px; width: 100%; max-width: 480px; margin: 10px auto; 
-            position: relative; flex-wrap: wrap; min-height: 220px; 
-            pointer-events: auto;
+            display: flex; justify-content: center; align-items: center; 
+            gap: 10px; width: 100%; max-width: 480px; margin: auto; 
+            position: relative; flex-wrap: nowrap; height: 210px; 
+            pointer-events: auto; overflow: visible;
         }
         .tube {
-            width: 46px; height: 195px; border: 4px solid rgba(255, 255, 255, 0.85); border-top: none;
-            border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; 
+            width: 42px; height: 180px; border: 4px solid rgba(255, 255, 255, 0.85); border-top: none;
+            border-bottom-left-radius: 18px; border-bottom-right-radius: 18px; 
             background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.08) 100%);
             backdrop-filter: blur(4px);
-            display: flex; flex-direction: column-reverse; align-items: center; padding: 6px 3px;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative;
+            display: flex; flex-direction: column-reverse; align-items: center; padding: 5px 2px;
+            cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease; position: relative;
             box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            pointer-events: auto;
+            pointer-events: auto; flex-shrink: 0;
         }
-        .tube.selected { transform: translateY(-14px) scale(1.03); border-color: #00f2fe; box-shadow: 0 15px 35px rgba(0, 242, 254, 0.5); }
+        .tube.selected { transform: translateY(-10px); border-color: #00f2fe; box-shadow: 0 15px 35px rgba(0, 242, 254, 0.5); }
         .liquid { 
-            width: 100%; height: 40px; border-radius: 8px; margin-top: 3px; 
+            width: 100%; height: 38px; border-radius: 6px; margin-top: 3px; 
             box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.3);
-            transition: height 0.2s ease;
         }
-        .liquid:first-child { border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
+        .liquid:first-child { border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
         
         .red { background: linear-gradient(90deg, #ff416c, #ff4b2b); }
         .blue { background: linear-gradient(90deg, #2193b0, #6dd5ed); }
@@ -112,32 +111,32 @@
         .orange { background: linear-gradient(90deg, #f857a6, #ff5858); }
 
         .timer-container {
-            width: 100%; max-width: 440px; margin: 10px 0 16px 0;
-            background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border-radius: 20px; padding: 10px 16px;
-            border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+            width: 100%; max-width: 440px; margin: 6px 0 10px 0;
+            background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border-radius: 20px; padding: 8px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;
             box-shadow: 0 8px 32px rgba(0,0,0,0.2);
         }
         .timer-track {
-            width: 100%; height: 10px; background: rgba(0,0,0,0.4); border-radius: 10px;
+            width: 100%; height: 8px; background: rgba(0,0,0,0.4); border-radius: 10px;
             position: relative; overflow: visible; border: 1px solid rgba(255,255,255,0.05);
         }
         .timer-fill {
             height: 100%; background: linear-gradient(90deg, #10b981, #fbbf24, #ef4444);
             border-radius: 10px; width: 0%; transition: width 0.2s linear;
         }
-        .cheetah { position: absolute; top: -14px; font-size: 20px; transform: translateX(-50%); transition: left 0.2s linear; pointer-events: none; }
-        .carrot { position: absolute; top: -10px; right: -6px; font-size: 16px; pointer-events: none; }
-        .timer-info { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; font-weight: 700; }
+        .cheetah { position: absolute; top: -14px; font-size: 18px; transform: translateX(-50%); transition: left 0.2s linear; pointer-events: none; }
+        .carrot { position: absolute; top: -9px; right: -6px; font-size: 15px; pointer-events: none; }
+        .timer-info { display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; font-weight: 700; }
 
         .banner-ad-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 52px;
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 50px;
             background: rgba(14, 16, 26, 0.98); backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255, 255, 255, 0.12);
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 16px; z-index: 900; box-shadow: 0 -10px 30px rgba(0,0,0,0.7);
         }
         .banner-ad-footer.hidden { display: none; }
-        body.ad-free { padding-bottom: 12px; }
+        body.ad-free { padding-bottom: 10px; }
 
         .banner-ad-left { display: flex; align-items: center; gap: 10px; }
         .banner-ad-tag { font-size: 9px; font-weight: 800; background: #fbbf24; color: #0c0d14; padding: 2px 6px; border-radius: 6px; text-transform: uppercase; }
