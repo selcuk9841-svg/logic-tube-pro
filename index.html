@@ -3,13 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Logic Tube: Color Puzzle Pro</title>
-    <meta name="theme-color" content="#1a1c29">
-    <meta name="description" content="Next-Gen Color Sorting & Puzzle Experience for Mobile">
-    <link rel="manifest" href="data:application/manifest+json;base64,ewog "name": "Logic Tube Pro", "short_name": "LogicTube", "start_url": "/", "display": "standalone", "background_color": "#1a1c29", "theme_color": "#1a1c29", "icons": [{"src": "https://img.icons8.com/fluency/96/test-tube.png", "sizes": "96x96", "type": "image/png"}]}">
-    
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-2670525330586593" crossorigin="anonymous"></script>
-
+    <title>Logic Tube: Color Puzzle v4.9 Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -49,22 +43,8 @@
             background: linear-gradient(145deg, rgba(30, 32, 48, 0.9), rgba(18, 20, 31, 0.95));
             border: 1px solid rgba(255, 255, 255, 0.12); padding: 22px; border-radius: 24px; width: 100%; max-width: 360px;
             display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            position: relative; z-index: 10;
         }
         .intro-label { font-size: 11px; font-weight: 700; color: #cbd5e1; text-align: left; text-transform: uppercase; letter-spacing: 0.8px; }
-
-        .gold-rain-container {
-            position: fixed; inset: 0; pointer-events: none; z-index: 999; overflow: hidden; display: none;
-        }
-        .gold-rain-container.active { display: block; }
-        .falling-coin {
-            position: absolute; top: -30px; font-size: 22px; animation: fallCoin linear infinite;
-            filter: drop-shadow(0 0 6px #fbbf24);
-        }
-        @keyframes fallCoin {
-            0% { transform: translateY(-30px) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(105vh) rotate(360deg); opacity: 0.2; }
-        }
 
         .header {
             width: 100%; max-width: 440px; display: flex; justify-content: space-between;
@@ -86,12 +66,12 @@
         .hud-stats { display: flex; gap: 8px; font-size: 13px; font-weight: 800; }
         .stat-box { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); }
 
-        .controls { display: flex; gap: 6px; margin: 10px 0; flex-shrink: 0; flex-wrap: wrap; justify-content: center; }
+        .controls { display: flex; gap: 8px; margin: 12px 0; flex-shrink: 0; flex-wrap: wrap; justify-content: center; }
         .btn {
             background: rgba(255, 255, 255, 0.06); color: #fff; border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 8px 11px; border-radius: 14px; font-weight: 700; cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-            font-size: 11px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 9px 14px; border-radius: 14px; font-weight: 700; cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         .btn:hover { background: rgba(255, 255, 255, 0.12); transform: translateY(-1px); }
         .btn:active { transform: translateY(1px); }
@@ -99,13 +79,12 @@
         .btn-undo { background: linear-gradient(135deg, #8b5cf6, #6d28d9); border: none; color: #fff; }
         .btn-pause { background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #fff; }
         .btn-stuck { background: linear-gradient(135deg, #ef4444, #991b1b); border: none; color: #fff; }
-        .btn-meta { background: linear-gradient(135deg, #10b981, #059669); border: none; color: #fff; }
-        .btn-pvp { background: linear-gradient(135deg, #ec4899, #be185d); border: none; color: #fff; }
 
         .game-board { 
-            display: flex; justify-content: center; align-items: center; 
+            display: flex; justify-content: center; align-items: flex-end; 
             gap: 12px; width: 100%; max-width: 480px; margin: 10px auto; 
-            position: relative; flex-wrap: wrap; height: auto; 
+            position: relative; flex-wrap: wrap; min-height: 220px; 
+            pointer-events: auto;
         }
         .tube {
             width: 46px; height: 195px; border: 4px solid rgba(255, 255, 255, 0.85); border-top: none;
@@ -115,6 +94,7 @@
             display: flex; flex-direction: column-reverse; align-items: center; padding: 6px 3px;
             cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative;
             box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            pointer-events: auto;
         }
         .tube.selected { transform: translateY(-14px) scale(1.03); border-color: #00f2fe; box-shadow: 0 15px 35px rgba(0, 242, 254, 0.5); }
         .liquid { 
@@ -132,21 +112,21 @@
         .orange { background: linear-gradient(90deg, #f857a6, #ff5858); }
 
         .timer-container {
-            width: 100%; max-width: 440px; margin: 10px auto 16px auto;
+            width: 100%; max-width: 440px; margin: 10px 0 16px 0;
             background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border-radius: 20px; padding: 10px 16px;
             border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
             box-shadow: 0 8px 32px rgba(0,0,0,0.2);
         }
         .timer-track {
-            width: 100%; height: 12px; background: rgba(0,0,0,0.4); border-radius: 10px;
+            width: 100%; height: 10px; background: rgba(0,0,0,0.4); border-radius: 10px;
             position: relative; overflow: visible; border: 1px solid rgba(255,255,255,0.05);
         }
         .timer-fill {
             height: 100%; background: linear-gradient(90deg, #10b981, #fbbf24, #ef4444);
             border-radius: 10px; width: 0%; transition: width 0.2s linear;
         }
-        .cheetah { position: absolute; top: -16px; font-size: 22px; transform: translateX(-50%); transition: left 0.2s linear; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
-        .carrot { position: absolute; top: -11px; right: -6px; font-size: 18px; pointer-events: none; }
+        .cheetah { position: absolute; top: -14px; font-size: 20px; transform: translateX(-50%); transition: left 0.2s linear; pointer-events: none; }
+        .carrot { position: absolute; top: -10px; right: -6px; font-size: 16px; pointer-events: none; }
         .timer-info { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; font-weight: 700; }
 
         .banner-ad-footer {
@@ -208,12 +188,10 @@
     </style>
 </head>
 <body>
-    <div class="gold-rain-container" id="goldRainContainer"></div>
-
     <div class="intro-overlay" id="introOverlay">
         <div class="logo-box">🧪</div>
-        <div class="intro-title">Logic Tube Pro v7.2</div>
-        <div class="intro-subtitle">AdMob Production Ready</div>
+        <div class="intro-title">Logic Tube Pro</div>
+        <div class="intro-subtitle">Next-Gen Color Sorting & Puzzle Experience</div>
         <div class="intro-card">
             <div class="intro-label" id="introNameLbl">Enter Your Nickname</div>
             <input type="text" id="introNameInput" class="input-field" placeholder="Player Name" maxlength="14" value="Player">
@@ -241,30 +219,6 @@
         </div>
     </div>
 
-    <div class="modal hidden" id="metaModal">
-        <div class="modal-card">
-            <h2 style="color:#10b981;" id="metaTitleText">🏝️ Sanal Laboratuvar & Ada</h2>
-            <p id="metaDescText">Kazandığın altınlarla adanı dekore et ve pasif gelirini artır!</p>
-            <div style="background:rgba(0,0,0,0.4); padding:15px; border-radius:14px; text-align:center; font-size:13px; font-weight:800;" id="metaStatusDisplay">
-                🧪 Lab Seviyesi: 1 (Temel Kimya Ünitesi)
-            </div>
-            <button class="btn btn-meta" onclick="upgradeLab()" id="metaUpgradeBtn">⚡ Laboratuvarı Geliştir (100 Altın)</button>
-            <button class="btn" style="background:rgba(255,255,255,0.08); margin-top:4px;" onclick="closeMetaModal()" id="metaCloseBtn">Kapat</button>
-        </div>
-    </div>
-
-    <div class="modal hidden" id="pvpModal">
-        <div class="modal-card">
-            <h2 style="color:#ec4899;" id="pvpTitleText">⚔️ 1v1 Hız Yarışı (PvP)</h2>
-            <p id="pvpDescText">Dünyadan rastgele bir rakiple eşleş ve bulmacayı ilk çözen sen ol!</p>
-            <div style="background:rgba(0,0,0,0.4); padding:15px; border-radius:14px; text-align:center; font-size:13px; font-weight:800;" id="pvpStatusDisplay">
-                🔍 Rakip aranıyor...
-            </div>
-            <button class="btn btn-pvp" onclick="startPvPMatch()" id="pvpStartBtn">🚀 Maçı Başlat</button>
-            <button class="btn" style="background:rgba(255,255,255,0.08); margin-top:4px;" onclick="closePvpModal()" id="pvpCloseBtn">Geri Dön</button>
-        </div>
-    </div>
-
     <div class="modal hidden" id="saveChoiceModal">
         <div class="modal-card">
             <h2 style="color:#00f2fe;" id="choiceTitleText">🎮 Saved Game Found!</h2>
@@ -276,7 +230,7 @@
 
     <div class="ad-interstitial-overlay hidden" id="adInterstitialOverlay">
         <div class="ad-banner-box">
-            <span class="ad-tag">AdMob Interstitial</span>
+            <span class="ad-tag">Ad / Sponsor</span>
             <div class="ad-content-area">
                 <div class="ad-content-title" id="adTitleText">Super Puzzle World Pro</div>
                 <div class="ad-content-sub" id="adDescText">Discover elite adventures and brain teasers today!</div>
@@ -297,7 +251,7 @@
         </div>
         <div class="hud-stats">
             <div class="stat-box">⭐ <span id="scoreText">0</span></div>
-            <div class="stat-box">🪙 <span id="coinText">100</span></div>
+            <div class="stat-box">🪙 <span id="coinText">50</span></div>
         </div>
     </div>
 
@@ -305,8 +259,6 @@
         <button class="btn btn-pause" id="btnPause" onclick="togglePause()">⏸️ Pause</button>
         <button class="btn btn-stuck" id="btnStuck" onclick="triggerDeadlock('No Moves Left!')">🔒 Stuck</button>
         <button class="btn btn-undo" id="btnUndo" onclick="undoMove()">↩️ Undo</button>
-        <button class="btn btn-meta" id="btnMeta" onclick="openMetaModal()">🏝️ Lab</button>
-        <button class="btn btn-pvp" id="btnPvp" onclick="openPvpModal()">⚔️ PvP</button>
         <button class="btn btn-lb" id="btnLb" onclick="openLeaderboard()">🏆 Ranking</button>
     </div>
     
@@ -674,7 +626,7 @@
                 victoryTitle: "🎉 TƏBRİklƏR!", victorySub: "Səviyyəni Uğurla Tamamladın!",
                 rewardTxt: "+15 Xal | +10 Qızıl Qazandın!", nextBtn: "Növbəti Səviyyə 🚀",
                 deadlockTitle: "🔒 VAXT BİTDİ / GEDİŞ QALMADI!", deadlockDesc: "Davam etmək üçün birini seçin:",
-                revGold: "🪙 40 Qızıl Ödə +35 Saniyə Əlavə Vaxt Al", revAd: "📺 Reklam İzlə (Boş Boru Aç)",
+                revGold: "🪙 40 Qızıl Ödə +40 Saniyə Əlavə Vaxt Al", revAd: "📺 Reklam İzlə (Boş Boru Aç)",
                 revWa: "💬 Dostunu Dəvət Et (Səviyyəni Keç)", restartDeadlockBtn: "🔄 Baştan Başla",
                 lbTitle: "🏆 Top 10 Liderlər Cədvəli", introNextBtn: "Davam Et 🚀", introAdFreeBtn: "⭐ Reklamları Sil ($4.99)",
                 profileAdFreeBtn: "⭐ Reklamları Sil ($4.99)",
@@ -687,78 +639,6 @@
         };
 
         let currentLang = 'en';
-        let labLevel = 1;
-
-        function openMetaModal() {
-            if (!isPaused && !isGameOver && !isAdShowing) togglePause();
-            updateLabModalUI();
-            document.getElementById('metaModal').classList.remove('hidden');
-        }
-
-        function closeMetaModal() {
-            document.getElementById('metaModal').classList.add('hidden');
-            if (isPaused && !isAdShowing) togglePause();
-        }
-
-        function updateLabModalUI() {
-            let cost = labLevel * 100;
-            document.getElementById('metaStatusDisplay').innerText = `🧪 Lab Seviyesi: ${labLevel} (Pasif Altın Üretimi Aktif!)`;
-            document.getElementById('metaUpgradeBtn').innerText = `⚡ Laboratuvarı Geliştir (${cost} Altın)`;
-        }
-
-        function upgradeLab() {
-            let cost = labLevel * 100;
-            if (userCoins >= cost) {
-                userCoins -= cost;
-                labLevel++;
-                updateHUD();
-                updateLabModalUI();
-                alert(currentLang === 'tr' ? "Laboratuvar başarıyla geliştirildi!" : "Laboratory upgraded successfully!");
-                saveGameState();
-            } else {
-                alert(currentLang === 'tr' ? "Yeterli altının yok!" : "Not enough coins!");
-            }
-        }
-
-        function openPvpModal() {
-            if (!isPaused && !isGameOver && !isAdShowing) togglePause();
-            document.getElementById('pvpModal').classList.remove('hidden');
-        }
-
-        function closePvpModal() {
-            document.getElementById('pvpModal').classList.add('hidden');
-            if (isPaused && !isAdShowing) togglePause();
-        }
-
-        function startPvPMatch() {
-            const statusEl = document.getElementById('pvpStatusDisplay');
-            statusEl.innerText = "⚔️ Rakip bulundu: 'Alex_Pro' (Eşleşiliyor...)";
-            setTimeout(() => {
-                alert(currentLang === 'tr' ? "PvP Maçı Başladı! Bulmacayı ilk bitiren kazanır!" : "PvP Match Started! First to finish wins!");
-                closePvpModal();
-            }, 1500);
-        }
-
-        function triggerGoldRain() {
-            const container = document.getElementById('goldRainContainer');
-            container.innerHTML = '';
-            container.classList.add('active');
-
-            for (let i = 0; i < 35; i++) {
-                const coin = document.createElement('div');
-                coin.className = 'falling-coin';
-                coin.innerText = '🪙';
-                coin.style.left = `${Math.random() * 100}vw`;
-                coin.style.animationDuration = `${1.5 + Math.random() * 2}s`;
-                coin.style.animationDelay = `${Math.random() * 1}s`;
-                container.appendChild(coin);
-            }
-
-            setTimeout(() => {
-                container.classList.remove('active');
-                container.innerHTML = '';
-            }, 3500);
-        }
 
         function onIntroLangChange(langVal) {
             currentLang = translations[langVal] ? langVal : 'en';
@@ -820,7 +700,6 @@
             document.getElementById('choiceRestartBtn').innerText = t.choiceRestart;
 
             document.getElementById('levelText').innerText = `${t.levelText} ${currentLevel + 1}`;
-            updateLabModalUI();
             updateAdFreeUI();
         }
 
@@ -928,7 +807,7 @@
         let selectedTubeIndex = null;
 
         let userScore = 0;
-        let userCoins = 100;
+        let userCoins = 50;
         let playerName = "Player";
         let playerLang = "en";
         let isAdFree = false;
@@ -949,7 +828,6 @@
                 playerLang,
                 currentLang,
                 isAdFree,
-                labLevel,
                 hasActiveSave: true
             };
             localStorage.setItem('logicTubeProSave', JSON.stringify(gameState));
@@ -978,7 +856,7 @@
             playerLang = langVal;
 
             document.getElementById('userNameDisplay').innerText = playerName;
-            document.getElementById('lbUserTag').innerText = playerName;
+            document.getElementById('lbUserTag').innerText = `${playerName}`;
             document.getElementById('nicknameInput').value = playerName;
 
             applyLanguage(currentLang);
@@ -990,9 +868,8 @@
             } else {
                 currentLevel = 0;
                 userScore = 0;
-                userCoins = 100;
+                userCoins = 50;
                 isAdFree = existingSave ? existingSave.isAdFree : false;
-                labLevel = existingSave ? (existingSave.labLevel || 1) : 1;
                 saveGameState();
                 initGame();
             }
@@ -1003,9 +880,8 @@
             if (existingSave) {
                 currentLevel = existingSave.currentLevel || 0;
                 userScore = existingSave.userScore || 0;
-                userCoins = existingSave.userCoins !== undefined ? existingSave.userCoins : 100;
+                userCoins = existingSave.userCoins !== undefined ? existingSave.userCoins : 50;
                 isAdFree = existingSave.isAdFree || false;
-                labLevel = existingSave.labLevel || 1;
             }
             document.getElementById('saveChoiceModal').classList.add('hidden');
             saveGameState();
@@ -1015,10 +891,9 @@
         function chooseRestartGame() {
             currentLevel = 0;
             userScore = 0;
-            userCoins = 100;
+            userCoins = 50;
             const existingSave = loadGameStateToMemory();
             isAdFree = existingSave ? existingSave.isAdFree : false;
-            labLevel = existingSave ? (existingSave.labLevel || 1) : 1;
             document.getElementById('saveChoiceModal').classList.add('hidden');
             saveGameState();
             initGame();
@@ -1089,7 +964,7 @@
             playerLang = langVal;
 
             document.getElementById('userNameDisplay').innerText = playerName;
-            document.getElementById('lbUserTag').innerText = playerName;
+            document.getElementById('lbUserTag').innerText = `${playerName}`;
 
             applyLanguage(currentLang);
             saveGameState();
@@ -1167,7 +1042,7 @@
             document.getElementById('saveChoiceModal').classList.add('hidden');
             
             document.getElementById('userNameDisplay').innerText = playerName;
-            document.getElementById('lbUserTag').innerText = playerName;
+            document.getElementById('lbUserTag').innerText = `${playerName}`;
             document.getElementById('nicknameInput').value = playerName;
 
             updateHUD();
@@ -1188,7 +1063,7 @@
                 return;
             }
 
-            if ((currentLevel + 1) % 5 === 0) {
+            if ((currentLevel + 1) > 0 && (currentLevel + 1) % 5 === 0) {
                 isAdShowing = true;
                 isPaused = true;
                 if (musicTimer) clearInterval(musicTimer);
@@ -1258,7 +1133,6 @@
                 const tubeEl = document.createElement('div');
                 tubeEl.className = 'tube' + (selectedTubeIndex === index ? ' selected' : '');
                 tubeEl.id = `tube-${index}`;
-                
                 tubeEl.onclick = (e) => { 
                     e.stopPropagation(); 
                     initAudio(); 
@@ -1427,7 +1301,6 @@
                 updateHUD();
                 saveGameState();
 
-                triggerGoldRain();
                 document.getElementById('victoryModal').classList.remove('hidden');
             }
         }
@@ -1439,8 +1312,6 @@
                 playerLang = savedData.playerLang || "en";
                 currentLang = savedData.currentLang || "en";
                 isAdFree = savedData.isAdFree || false;
-                labLevel = savedData.labLevel || 1;
-                userCoins = savedData.userCoins !== undefined ? savedData.userCoins : 100;
 
                 document.getElementById('introNameInput').value = playerName;
                 const langSelect = document.getElementById('introLangSelect');
