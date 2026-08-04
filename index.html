@@ -2,18 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Logic Tube: Color Puzzle v4.9 Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-touch-callout: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        :root {
+            --lab-cyan: #00f2fe;
+            --lab-blue: #4facfe;
+            --lab-glow: rgba(0, 242, 254, 0.35);
+        }
+
         body {
             background: radial-gradient(circle at center, #1a1c29 0%, #0c0d14 100%);
             font-family: 'Outfit', sans-serif;
-            color: #ffffff; width: 100vw; height: 100vh; height: 100dvh;
-            display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-            padding: 10px 10px 60px 10px; overflow: hidden; position: fixed; inset: 0;
+            color: #ffffff; min-height: 100vh; display: flex;
+            flex-direction: column; align-items: center; justify-content: space-between;
+            padding: 12px 10px 62px 10px; overflow-x: hidden; overflow-y: auto; position: relative;
         }
+
+        /* ===================== LAB BACKGROUND LAYER ===================== */
+        #labBackdrop {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+        }
+        #labBackdrop .grid-layer {
+            position: absolute; inset: -2px;
+            background-image:
+                linear-gradient(rgba(79, 172, 254, 0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79, 172, 254, 0.07) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: radial-gradient(circle at 50% 40%, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.15) 75%);
+            -webkit-mask-image: radial-gradient(circle at 50% 40%, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.15) 75%);
+            animation: gridDrift 26s linear infinite;
+        }
+        @keyframes gridDrift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-42px, -42px); }
+        }
+        #labBackdrop .glow-orb {
+            position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.28;
+        }
+        .glow-orb.o1 { width: 320px; height: 320px; top: -80px; left: -60px; background: var(--lab-cyan); animation: orbFloat 9s ease-in-out infinite; }
+        .glow-orb.o2 { width: 260px; height: 260px; bottom: 40px; right: -60px; background: #8e2de2; animation: orbFloat 11s ease-in-out infinite reverse; }
+        .glow-orb.o3 { width: 200px; height: 200px; bottom: -60px; left: 40%; background: #10b981; animation: orbFloat 13s ease-in-out infinite; }
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0,0) scale(1); }
+            50% { transform: translate(18px,-14px) scale(1.08); }
+        }
+        .lab-rig { position: absolute; opacity: 0.16; filter: drop-shadow(0 0 10px rgba(79,172,254,0.4)); }
+        .lab-rig.left { top: 8%; left: 2%; width: 90px; animation: rigSway 7s ease-in-out infinite; }
+        .lab-rig.right { top: 12%; right: 3%; width: 76px; animation: rigSway 8.5s ease-in-out infinite reverse; }
+        .lab-rig.bottom { bottom: 4%; left: 6%; width: 70px; animation: rigSway 6.5s ease-in-out infinite; }
+        @keyframes rigSway {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-6px) rotate(-1.5deg); }
+        }
+        .lab-particle {
+            position: absolute; bottom: -20px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,242,254,0.9) 0%, rgba(0,242,254,0) 70%);
+            animation-name: bubbleRise; animation-timing-function: ease-in; animation-iteration-count: infinite;
+        }
+        @keyframes bubbleRise {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(-115vh) translateX(var(--drift, 20px)); opacity: 0; }
+        }
+
+        /* Everything gameplay-related sits above the backdrop */
+        .header, .controls, .game-board, .timer-container, .banner-ad-footer,
+        .intro-overlay, .modal, .ad-interstitial-overlay { position: relative; z-index: 2; }
 
         .intro-overlay, .modal, .ad-interstitial-overlay {
             position: fixed; inset: 0; background: rgba(8, 9, 15, 0.88);
@@ -48,7 +107,7 @@
 
         .header {
             width: 100%; max-width: 440px; display: flex; justify-content: space-between;
-            align-items: center; padding: 10px 16px; background: rgba(255, 255, 255, 0.04);
+            align-items: center; padding: 12px 16px; background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(8px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08); flex-shrink: 0;
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
@@ -66,10 +125,10 @@
         .hud-stats { display: flex; gap: 8px; font-size: 13px; font-weight: 800; }
         .stat-box { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); }
 
-        .controls { display: flex; gap: 8px; margin: 8px 0; flex-shrink: 0; flex-wrap: wrap; justify-content: center; }
+        .controls { display: flex; gap: 8px; margin: 12px 0; flex-shrink: 0; flex-wrap: wrap; justify-content: center; }
         .btn {
             background: rgba(255, 255, 255, 0.06); color: #fff; border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 8px 12px; border-radius: 14px; font-weight: 700; cursor: pointer;
+            padding: 9px 14px; border-radius: 14px; font-weight: 700; cursor: pointer;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 6px;
             font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
@@ -81,27 +140,75 @@
         .btn-stuck { background: linear-gradient(135deg, #ef4444, #991b1b); border: none; color: #fff; }
 
         .game-board { 
-            display: flex; justify-content: center; align-items: center; 
-            gap: 10px; width: 100%; max-width: 480px; margin: auto; 
-            position: relative; flex-wrap: nowrap; height: 210px; 
-            pointer-events: auto; overflow: visible;
+            display: flex; justify-content: center; align-items: flex-end; 
+            gap: 12px; width: 100%; max-width: 480px; margin: 10px auto; 
+            position: relative; flex-wrap: wrap; min-height: 220px; 
+            pointer-events: auto;
         }
+
+        /* ============ UPGRADED GLASS TUBE + GEM LIQUID LOOK ============ */
         .tube {
-            width: 42px; height: 180px; border: 4px solid rgba(255, 255, 255, 0.85); border-top: none;
-            border-bottom-left-radius: 18px; border-bottom-right-radius: 18px; 
-            background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.08) 100%);
+            width: 50px; height: 205px;
+            border: 3px solid rgba(255, 255, 255, 0.9); border-top: none;
+            border-bottom-left-radius: 22px; border-bottom-right-radius: 22px;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.10) 100%);
             backdrop-filter: blur(4px);
-            display: flex; flex-direction: column-reverse; align-items: center; padding: 5px 2px;
-            cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease; position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            pointer-events: auto; flex-shrink: 0;
+            display: flex; flex-direction: column-reverse; align-items: center; padding: 7px 4px;
+            cursor: pointer; transition: all 0.32s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative;
+            box-shadow:
+                0 10px 25px rgba(0,0,0,0.45),
+                inset 6px 0 10px -6px rgba(255,255,255,0.5),
+                inset -6px 0 10px -6px rgba(0,0,0,0.35);
+            pointer-events: auto;
+            overflow: visible;
         }
-        .tube.selected { transform: translateY(-10px); border-color: #00f2fe; box-shadow: 0 15px 35px rgba(0, 242, 254, 0.5); }
-        .liquid { 
-            width: 100%; height: 38px; border-radius: 6px; margin-top: 3px; 
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.3);
+        /* glass specular streak */
+        .tube::before {
+            content: ''; position: absolute; top: 4px; bottom: 14px; left: 8px; width: 5px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.05));
+            border-radius: 6px; pointer-events: none;
         }
-        .liquid:first-child { border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
+        .tube.selected {
+            transform: translateY(-16px) scale(1.045);
+            border-color: #00f2fe;
+            box-shadow:
+                0 18px 40px rgba(0, 242, 254, 0.55),
+                inset 6px 0 10px -6px rgba(255,255,255,0.6),
+                inset -6px 0 10px -6px rgba(0,0,0,0.3),
+                0 0 0 3px rgba(0,242,254,0.15);
+        }
+        .tube.selected::after {
+            content: ''; position: absolute; left: 50%; top: -10px; width: 8px; height: 8px;
+            background: #00f2fe; border-radius: 50%; transform: translateX(-50%);
+            box-shadow: 0 0 12px 4px var(--lab-glow);
+            animation: selectPulse 1s ease-in-out infinite;
+        }
+        @keyframes selectPulse {
+            0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(0.8); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.15); }
+        }
+
+        .liquid {
+            width: 100%; height: 42px; border-radius: 9px; margin-top: 3px;
+            position: relative; overflow: hidden;
+            box-shadow:
+                inset 0 3px 6px rgba(255,255,255,0.45),
+                inset 0 -3px 6px rgba(0,0,0,0.35),
+                inset 8px 0 10px -8px rgba(255,255,255,0.4);
+            transition: height 0.2s ease;
+            animation: liquidSettle 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes liquidSettle {
+            0% { transform: scaleY(0.4); opacity: 0.4; }
+            100% { transform: scaleY(1); opacity: 1; }
+        }
+        /* glossy highlight blob per segment - reads as a "gem/cube" facet */
+        .liquid::after {
+            content: ''; position: absolute; top: 4px; left: 18%; width: 34%; height: 30%;
+            background: rgba(255,255,255,0.55); border-radius: 50%; filter: blur(2px);
+        }
+        .liquid:first-child { border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; }
         
         .red { background: linear-gradient(90deg, #ff416c, #ff4b2b); }
         .blue { background: linear-gradient(90deg, #2193b0, #6dd5ed); }
@@ -110,33 +217,57 @@
         .purple { background: linear-gradient(90deg, #8e2de2, #4a00e0); }
         .orange { background: linear-gradient(90deg, #f857a6, #ff5858); }
 
+        /* completed-tube celebration glow */
+        .tube.tube-complete {
+            border-color: #38ef7d;
+            box-shadow:
+                0 0 24px 4px rgba(56, 239, 125, 0.55),
+                inset 6px 0 10px -6px rgba(255,255,255,0.6),
+                inset -6px 0 10px -6px rgba(0,0,0,0.3);
+            animation: tubeComplete 0.6s ease-out;
+        }
+        @keyframes tubeComplete {
+            0% { transform: scale(1); }
+            35% { transform: scale(1.08) translateY(-4px); }
+            100% { transform: scale(1); }
+        }
+
+        .pop-particle {
+            position: absolute; width: 6px; height: 6px; border-radius: 50%;
+            pointer-events: none; z-index: 5; animation: popFly 0.55s ease-out forwards;
+        }
+        @keyframes popFly {
+            0% { transform: translate(0,0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--px), var(--py)) scale(0.2); opacity: 0; }
+        }
+
         .timer-container {
-            width: 100%; max-width: 440px; margin: 6px 0 10px 0;
-            background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border-radius: 20px; padding: 8px 16px;
-            border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;
+            width: 100%; max-width: 440px; margin: 10px 0 16px 0;
+            background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border-radius: 20px; padding: 10px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
             box-shadow: 0 8px 32px rgba(0,0,0,0.2);
         }
         .timer-track {
-            width: 100%; height: 8px; background: rgba(0,0,0,0.4); border-radius: 10px;
+            width: 100%; height: 10px; background: rgba(0,0,0,0.4); border-radius: 10px;
             position: relative; overflow: visible; border: 1px solid rgba(255,255,255,0.05);
         }
         .timer-fill {
             height: 100%; background: linear-gradient(90deg, #10b981, #fbbf24, #ef4444);
             border-radius: 10px; width: 0%; transition: width 0.2s linear;
         }
-        .cheetah { position: absolute; top: -14px; font-size: 18px; transform: translateX(-50%); transition: left 0.2s linear; pointer-events: none; }
-        .carrot { position: absolute; top: -9px; right: -6px; font-size: 15px; pointer-events: none; }
-        .timer-info { display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; font-weight: 700; }
+        .cheetah { position: absolute; top: -14px; font-size: 20px; transform: translateX(-50%); transition: left 0.2s linear; pointer-events: none; }
+        .carrot { position: absolute; top: -10px; right: -6px; font-size: 16px; pointer-events: none; }
+        .timer-info { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; font-weight: 700; }
 
         .banner-ad-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 50px;
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 52px;
             background: rgba(14, 16, 26, 0.98); backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255, 255, 255, 0.12);
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 16px; z-index: 900; box-shadow: 0 -10px 30px rgba(0,0,0,0.7);
         }
         .banner-ad-footer.hidden { display: none; }
-        body.ad-free { padding-bottom: 10px; }
+        body.ad-free { padding-bottom: 12px; }
 
         .banner-ad-left { display: flex; align-items: center; gap: 10px; }
         .banner-ad-tag { font-size: 9px; font-weight: 800; background: #fbbf24; color: #0c0d14; padding: 2px 6px; border-radius: 6px; text-transform: uppercase; }
@@ -185,8 +316,45 @@
             margin-left: 4px;
         }
     </style>
+    <!-- AdMob SDK Entegrasyon Alanı -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-2670525330586593" crossorigin="anonymous"></script>
 </head>
 <body>
+    <!-- ADMOB BİRİM ID REFERANSLARI:
+         Banner Reklam ID: ca-app-pub-2670525330586593/9519894226
+         Geçiş Reklam ID: ca-app-pub-2670525330586593/5871193172[cite: 1]
+    -->
+
+    <!-- ===================== ORIGINAL, PROCEDURAL LAB BACKDROP (no external assets) ===================== -->
+    <div id="labBackdrop">
+        <div class="grid-layer"></div>
+        <div class="glow-orb o1"></div>
+        <div class="glow-orb o2"></div>
+        <div class="glow-orb o3"></div>
+
+        <svg class="lab-rig left" viewBox="0 0 100 160" xmlns="http://www.w3.org/2000/svg">
+            <rect x="30" y="10" width="10" height="90" fill="#4facfe"/>
+            <rect x="10" y="95" width="50" height="8" rx="4" fill="#4facfe"/>
+            <circle cx="35" cy="10" r="10" fill="none" stroke="#00f2fe" stroke-width="3"/>
+            <path d="M20 120 L50 120 L46 150 Q35 158 24 150 Z" fill="none" stroke="#00f2fe" stroke-width="3"/>
+        </svg>
+        <svg class="lab-rig right" viewBox="0 0 100 160" xmlns="http://www.w3.org/2000/svg">
+            <path d="M30 20 L70 20 L60 90 Q50 100 40 90 Z" fill="none" stroke="#8e2de2" stroke-width="3"/>
+            <rect x="25" y="10" width="50" height="10" rx="3" fill="#8e2de2"/>
+            <circle cx="50" cy="60" r="6" fill="#8e2de2" opacity="0.6"/>
+        </svg>
+        <svg class="lab-rig bottom" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="30" fill="none" stroke="#10b981" stroke-width="3"/>
+            <circle cx="50" cy="50" r="4" fill="#10b981"/>
+            <line x1="50" y1="20" x2="50" y2="10" stroke="#10b981" stroke-width="3"/>
+            <line x1="50" y1="80" x2="50" y2="90" stroke="#10b981" stroke-width="3"/>
+            <line x1="20" y1="50" x2="10" y2="50" stroke="#10b981" stroke-width="3"/>
+            <line x1="80" y1="50" x2="90" y2="50" stroke="#10b981" stroke-width="3"/>
+        </svg>
+
+        <div id="bubbleField"></div>
+    </div>
+
     <div class="intro-overlay" id="introOverlay">
         <div class="logo-box">🧪</div>
         <div class="intro-title">Logic Tube Pro</div>
@@ -227,9 +395,9 @@
         </div>
     </div>
 
-    <div class="ad-interstitial-overlay hidden" id="adInterstitialOverlay">
+    <div class="ad-interstitial-overlay hidden" id="adInterstitialOverlay" data-ad-unit="ca-app-pub-2670525330586593/5871193172">
         <div class="ad-banner-box">
-            <span class="ad-tag">Ad / Sponsor</span>
+            <span class="ad-tag">Ad / Sponsor (ID: 5871193172)</span>
             <div class="ad-content-area">
                 <div class="ad-content-title" id="adTitleText">Super Puzzle World Pro</div>
                 <div class="ad-content-sub" id="adDescText">Discover elite adventures and brain teasers today!</div>
@@ -275,9 +443,9 @@
         </div>
     </div>
 
-    <div class="banner-ad-footer" id="bannerAdFooter">
+    <div class="banner-ad-footer" id="bannerAdFooter" data-ad-unit="ca-app-pub-2670525330586593/9519894226">
         <div class="banner-ad-left">
-            <span class="banner-ad-tag">Ad</span>
+            <span class="banner-ad-tag">Ad (9519894226)</span>
             <span class="banner-ad-text" id="bannerAdText">Super Puzzle Game - Play Now!</span>
         </div>
         <button class="banner-ad-btn" onclick="alert(currentLang === 'tr' ? 'Sponsorlu bağlantı açılıyor...' : 'Opening sponsor link...')">Install</button>
@@ -368,6 +536,11 @@
     </div>
 
     <script>
+        const ADMOB_CONFIG = {
+            bannerId: "ca-app-pub-2670525330586593/9519894226",
+            interstitialId: "ca-app-pub-2670525330586593/5871193172"
+        };
+
         const translations = {
             en: {
                 levelText: "Level", pauseBtn: "⏸️ Pause", stuckBtn: "🔒 Stuck",
@@ -702,13 +875,42 @@
             updateAdFreeUI();
         }
 
+        /* ===================== ORIGINAL PROCEDURAL AMBIENT LAB BUBBLES ===================== */
+        function spawnLabBubbles() {
+            const field = document.getElementById('bubbleField');
+            if (!field) return;
+            const count = 14;
+            for (let i = 0; i < count; i++) {
+                const b = document.createElement('div');
+                b.className = 'lab-particle';
+                const size = 4 + Math.random() * 10;
+                b.style.width = size + 'px';
+                b.style.height = size + 'px';
+                b.style.left = Math.random() * 100 + 'vw';
+                b.style.setProperty('--drift', (Math.random() * 60 - 30) + 'px');
+                const duration = 9 + Math.random() * 10;
+                b.style.animationDuration = duration + 's';
+                b.style.animationDelay = (Math.random() * duration) + 's';
+                field.appendChild(b);
+            }
+        }
+
+        /* ===================== ORIGINAL, FULLY PROCEDURAL MUSIC ENGINE ===================== */
+        /* All tones generated live via Web Audio oscillators - no external samples, no copyrighted material. */
         let audioCtx = null;
         let musicTimer = null;
+        let bassTimer = null;
         let ambientStep = 0;
+        let masterMusicGain = null;
 
         function initAudio() {
             try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    masterMusicGain = audioCtx.createGain();
+                    masterMusicGain.gain.value = 1;
+                    masterMusicGain.connect(audioCtx.destination);
+                }
                 if (audioCtx.state === 'suspended') audioCtx.resume();
             } catch (e) {}
         }
@@ -716,43 +918,93 @@
         function startModernAmbientMusic() {
             if (!audioCtx) return;
             if (musicTimer) clearInterval(musicTimer);
+            if (bassTimer) clearInterval(bassTimer);
 
-            const lofiChordSet = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
-            const tensionSet   = [220.00, 246.94, 293.66, 349.23, 440.00];
+            // Original lab-themed scales (not derived from any existing composition)
+            const calmScale   = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25]; // C D E G A C
+            const tensionScale= [220.00, 246.94, 293.66, 349.23, 415.30, 440.00]; // A B D F G# A
+            const bassCalm    = [65.41, 87.31, 98.00];
+            const bassTension = [55.00, 73.42, 82.41];
 
+            // Layer 1: arpeggiated lead (original melodic pattern)
             musicTimer = setInterval(() => {
                 if (isPaused || isGameOver || !audioCtx) return;
                 try {
                     const isTensionMode = timePassed >= (totalTime / 2);
                     const now = audioCtx.currentTime;
-                    
+
                     const osc = audioCtx.createOscillator();
                     const gain = audioCtx.createGain();
                     const filter = audioCtx.createBiquadFilter();
 
                     osc.type = isTensionMode ? 'triangle' : 'sine';
-                    const notes = isTensionMode ? tensionSet : lofiChordSet;
-                    let freq = notes[ambientStep % notes.length];
+                    const notes = isTensionMode ? tensionScale : calmScale;
+                    const freq = notes[ambientStep % notes.length];
 
                     osc.frequency.setValueAtTime(freq, now);
-                    
-                    filter.type = 'lowpass';
-                    filter.frequency.setValueAtTime(isTensionMode ? 1000 : 500, now);
 
-                    const volume = isTensionMode ? 0.045 : 0.035;
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(isTensionMode ? 1100 : 600, now);
+                    filter.Q.value = 0.7;
+
+                    const volume = isTensionMode ? 0.05 : 0.038;
                     gain.gain.setValueAtTime(0.001, now);
                     gain.gain.linearRampToValueAtTime(volume, now + 0.15);
                     gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.5);
 
                     osc.connect(filter);
                     filter.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    
+                    gain.connect(masterMusicGain);
+
                     osc.start(now);
                     osc.stop(now + 1.5);
+
+                    // subtle shimmer harmony every 4th step (original interval choice)
+                    if (ambientStep % 4 === 0) {
+                        const osc2 = audioCtx.createOscillator();
+                        const gain2 = audioCtx.createGain();
+                        osc2.type = 'sine';
+                        osc2.frequency.setValueAtTime(freq * 2, now);
+                        gain2.gain.setValueAtTime(0.001, now);
+                        gain2.gain.linearRampToValueAtTime(volume * 0.4, now + 0.2);
+                        gain2.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+                        osc2.connect(gain2);
+                        gain2.connect(masterMusicGain);
+                        osc2.start(now);
+                        osc2.stop(now + 1.2);
+                    }
+
                     ambientStep++;
-                } catch(err) {}
+                } catch (err) {}
             }, 500);
+
+            // Layer 2: slow evolving bass drone (adds body without competing with the lead)
+            let bassStep = 0;
+            bassTimer = setInterval(() => {
+                if (isPaused || isGameOver || !audioCtx) return;
+                try {
+                    const isTensionMode = timePassed >= (totalTime / 2);
+                    const now = audioCtx.currentTime;
+                    const notes = isTensionMode ? bassTension : bassCalm;
+                    const freq = notes[bassStep % notes.length];
+
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now);
+
+                    gain.gain.setValueAtTime(0.001, now);
+                    gain.gain.linearRampToValueAtTime(0.05, now + 0.6);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.6);
+
+                    osc.connect(gain);
+                    gain.connect(masterMusicGain);
+                    osc.start(now);
+                    osc.stop(now + 3.6);
+
+                    bassStep++;
+                } catch (err) {}
+            }, 4000);
         }
 
         function playPopSound() {
@@ -795,6 +1047,22 @@
                     osc.connect(gain); gain.connect(audioCtx.destination);
                     osc.start(audioCtx.currentTime + idx * 0.15);
                     osc.stop(audioCtx.currentTime + idx * 0.15 + 0.3);
+                });
+            } catch(e) {}
+        }
+
+        // small celebratory chime used purely for the visual/audio "cube completes" feedback
+        function playTubeCompleteSound() {
+            if (!audioCtx) return;
+            try {
+                [660, 880].forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                    osc.type = 'triangle'; osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.08 + 0.25);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(audioCtx.currentTime + idx * 0.08);
+                    osc.stop(audioCtx.currentTime + idx * 0.08 + 0.25);
                 });
             } catch(e) {}
         }
@@ -1123,6 +1391,29 @@
             render();
         }
 
+        // ---- purely visual helper: small particle burst, does not touch tubesData/game state ----
+        function spawnPopParticles(tubeEl, colorClass) {
+            if (!tubeEl) return;
+            const colorMap = {
+                red: '#ff4b2b', blue: '#6dd5ed', green: '#38ef7d',
+                yellow: '#ffd200', purple: '#8e2de2', orange: '#ff5858'
+            };
+            const rect = tubeEl.getBoundingClientRect();
+            for (let i = 0; i < 6; i++) {
+                const p = document.createElement('div');
+                p.className = 'pop-particle';
+                p.style.background = colorMap[colorClass] || '#00f2fe';
+                p.style.left = (rect.width / 2) + 'px';
+                p.style.top = '6px';
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 20 + Math.random() * 22;
+                p.style.setProperty('--px', Math.cos(angle) * dist + 'px');
+                p.style.setProperty('--py', Math.sin(angle) * dist - 10 + 'px');
+                tubeEl.appendChild(p);
+                setTimeout(() => p.remove(), 600);
+            }
+        }
+
         function render() {
             const board = document.getElementById('board'); 
             if (!board) return;
@@ -1130,7 +1421,8 @@
             
             tubesData.forEach((tube, index) => {
                 const tubeEl = document.createElement('div');
-                tubeEl.className = 'tube' + (selectedTubeIndex === index ? ' selected' : '');
+                const isComplete = tube.length === 4 && tube.every(c => c === tube[0]);
+                tubeEl.className = 'tube' + (selectedTubeIndex === index ? ' selected' : '') + (isComplete ? ' tube-complete' : '');
                 tubeEl.id = `tube-${index}`;
                 tubeEl.onclick = (e) => { 
                     e.stopPropagation(); 
@@ -1179,6 +1471,7 @@
             if (isGameOver || isAdShowing) return;
             isGameOver = true;
             if (musicTimer) clearInterval(musicTimer);
+            if (bassTimer) clearInterval(bassTimer);
             clearInterval(timerInterval);
             playFailSound();
             updateHUD();
@@ -1252,6 +1545,8 @@
                         for (let m = 0; m < actualMove; m++) toT.push(movedColors.pop());
 
                         playPopSound();
+                        const targetTubeEl = document.getElementById(`tube-${index}`);
+                        spawnPopParticles(targetTubeEl, colorToMove);
                         selectedTubeIndex = null;
                         
                         render();
@@ -1292,6 +1587,7 @@
             if (activeTubesCount > 0 && correctTubesCount === activeTubesCount) {
                 isGameOver = true;
                 if (musicTimer) clearInterval(musicTimer);
+                if (bassTimer) clearInterval(bassTimer);
                 clearInterval(timerInterval);
                 playWinSound();
 
@@ -1305,6 +1601,8 @@
         }
 
         window.onload = () => {
+            spawnLabBubbles();
+
             const savedData = loadGameStateToMemory();
             if (savedData) {
                 playerName = savedData.playerName || "Player";
